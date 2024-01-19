@@ -3,6 +3,7 @@ import { verify } from 'jsonwebtoken';
 
 interface Payload {
     sub: string;
+    admin: boolean;
 }
 
 export function isAuthenticated(
@@ -21,12 +22,13 @@ export function isAuthenticated(
 
     try {
         //validar token
-        const { sub } = verify(
+        const validation = verify(
             token,
             process.env.JWT_SECRET
         ) as Payload;
 
-        req.user_id = sub;
+        req.user_id = validation.sub;
+        req.user_admin = validation.admin;
 
         return next();
     } catch (err) {

@@ -27,11 +27,24 @@ class AuthUserService {
             throw new Error("Email ou senha incorreto");
         }
 
+        let userAdmin = false;
+        
+        const userIsAdmin = await prismaClient.admin.findFirst({
+            where:{
+                id: user.id
+            }
+        });
+
+        if (userIsAdmin){
+            userAdmin = true;
+        }
+
         //gerar um token JWT
         const token = sign(
             {
                 name: user.name,
                 email: user.email,
+                admin: userAdmin
             },
             process.env.JWT_SECRET,
             {

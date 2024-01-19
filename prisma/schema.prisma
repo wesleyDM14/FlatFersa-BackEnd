@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//prisma models and schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,13 +9,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
+model User {
+  id         String    @id @default(uuid())
+  name       String
+  email      String    @unique
+  password   String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  admin      Admin?
+  clients    Client?
+
+  @@map("users")
+}
+
+model Admin {
+  id   String @id
+  user User   @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model Client {
+  id        String     @id
+  cpf       String
+  rg        String
+  dateBirth DateTime
+  phone     String
+  address   String?
+  contract  Contract[]
+
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("clients")
+}
+
+model Apartment {
+  id         String     @id @default(uuid())
+  number     Int
+  baseValue  Float
+  building   String?
+  created_at DateTime?  @default(now())
+  updated_at DateTime?  @default(now())
+  contrat    Contract[]
+
+  @@map("apartments")
+}
+
+model Contract {
+  id         String    @id @default(uuid())
+  dateStart  DateTime
+  dateEnd    DateTime
+  value      Float
+  status     Boolean
   created_at DateTime? @default(now())
   updated_at DateTime? @default(now())
 
-  @@map("users")
+  aptId String    @unique
+  apt   Apartment @relation(fields: [aptId], references: [id], onDelete: Cascade)
+
+  clientId String @unique
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
