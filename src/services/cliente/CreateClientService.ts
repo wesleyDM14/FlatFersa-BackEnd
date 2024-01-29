@@ -39,6 +39,7 @@ class CreateClientService {
         const client = await prismaClient.client.create({
             data: {
                 cpf: cpf,
+                name: name,
                 rg: rg,
                 dateBirth: dateBirth,
                 phone: phone,

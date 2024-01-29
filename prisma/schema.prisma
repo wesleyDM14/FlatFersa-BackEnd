@@ -29,6 +29,7 @@ model Admin {
 
 model Client {
   id        String     @id
+  name      String
   cpf       String
   rg        String
   dateBirth DateTime
