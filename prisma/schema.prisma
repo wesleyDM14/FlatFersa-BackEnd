@@ -47,6 +47,7 @@ model Apartment {
   number     Int
   baseValue  Float
   building   String?
+  ocupado    Boolean    @default(false)
   created_at DateTime?  @default(now())
   updated_at DateTime?  @default(now())
   contrat    Contract[]

@@ -8,6 +8,9 @@ import { CreateClientController } from './controllers/cliente/CreateClientContro
 import { isAuthenticated } from './middlewares/isAuthenticated';
 import { DetailClientController } from './controllers/cliente/DetailClientController';
 import { CreateApartmentController } from './controllers/apartment/CreateApartmentController';
+import { DetailApartmentController } from './controllers/apartment/DetailApartmentController';
+import { DeleteClientController } from './controllers/cliente/DeleteClientController';
+import { DeleteApartmentController } from './controllers/apartment/DeleteApartmentController';
 
 const router = Router();
 
@@ -21,8 +24,11 @@ router.get('/me', isAuthenticated, new DetailUserController().getLoggedIn);
 // -- Rotas Client --
 router.post('/clients', isAuthenticated, new CreateClientController().handle);
 router.get('/clients', isAuthenticated, new DetailClientController().getAll);
+router.post('/deleteClient', isAuthenticated, new DeleteClientController().handle);
 
 // -- Rotas Apartment --
 router.post('/apartments', isAuthenticated, new CreateApartmentController().handle);
+router.get('/apartments', isAuthenticated, new DetailApartmentController().getAll);
+router.post('/deleteApartment', isAuthenticated, new DeleteApartmentController().handle);
 
 export { router };
