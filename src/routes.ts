@@ -11,6 +11,7 @@ import { CreateApartmentController } from './controllers/apartment/CreateApartme
 import { DetailApartmentController } from './controllers/apartment/DetailApartmentController';
 import { DeleteClientController } from './controllers/cliente/DeleteClientController';
 import { DeleteApartmentController } from './controllers/apartment/DeleteApartmentController';
+import { DeleteUserController } from './controllers/user/DeleteUserController';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.get('/users', isAuthenticated, new DetailUserController().getAllUsers);
 router.post('/getUser', isAuthenticated, new DetailUserController().getUserById);
 router.post('/session', new AuthUserController().handle);
 router.get('/me', isAuthenticated, new DetailUserController().getLoggedIn);
+router.post('/deleteUser', isAuthenticated, new DeleteUserController().handle);
 
 // -- Rotas Client --
 router.post('/clients', isAuthenticated, new CreateClientController().handle);

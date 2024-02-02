@@ -43,14 +43,14 @@ model Client {
 }
 
 model Apartment {
-  id         String     @id @default(uuid())
-  number     Int
-  baseValue  Float
-  building   String?
-  ocupado    Boolean    @default(false)
-  created_at DateTime?  @default(now())
-  updated_at DateTime?  @default(now())
-  contrat    Contract[]
+  contractNumber String        @id
+  number         Int
+  baseValue      Float
+  building       String?
+  ocupado        Boolean    @default(false)
+  created_at     DateTime?  @default(now())
+  updated_at     DateTime?  @default(now())
+  contrat        Contract[]
 
   @@map("apartments")
 }
@@ -65,7 +65,7 @@ model Contract {
   updated_at DateTime? @default(now())
 
   aptId String    @unique
-  apt   Apartment @relation(fields: [aptId], references: [id], onDelete: Cascade)
+  apt   Apartment @relation(fields: [aptId], references: [contractNumber], onDelete: Cascade)
 
   clientId String @unique
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
