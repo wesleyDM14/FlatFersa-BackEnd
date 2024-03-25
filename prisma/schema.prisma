@@ -10,8 +10,10 @@ datasource db {
 
 //Definicao da tabela Predio
 model Predio {
-  id       String @id @default(uuid())
-  endereco String
+  id        String   @id @default(uuid())
+  endereco  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   //Relacionamento com a Tabela Apartamento
   apartamentos Apartamento[]
@@ -19,9 +21,11 @@ model Predio {
 
 //Definicao da tabela Apartamento
 model Apartamento {
-  numeroContrato String @id
+  numeroContrato String   @id
   numero         Int
   valorBase      Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relacionamento com a tabela Predio
   id_predio String
@@ -43,6 +47,8 @@ model Contrato {
   dataInicio             DateTime
   statusContrato         StatusContrato
   limiteKwh              Float //Limite de consumo para gratuidade da conta de energia
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 
   //Relacionamento com a Tabela Apartamento
   aptId String      @unique
@@ -66,6 +72,8 @@ model PrestacaoAluguel {
   statusPagamento   StatusPagamento //Status do pagamento (enum)
   consumoKWh        Int //Quantidade de KWh consumida no mês
   valorExcedenteKWh Float //Valor do excedente de KWh a ser cobrado
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   //Relacionamento com a tabela Contrato
   contractId String?
@@ -74,11 +82,13 @@ model PrestacaoAluguel {
 
 //Definicao da tabela User
 model User {
-  id              String  @id @default(uuid())
-  email           String  @unique
+  id              String   @id @default(uuid())
+  email           String   @unique
   password        String
-  primeiraConexao Boolean @default(true)
-  isAdmin         Boolean @default(false)
+  primeiraConexao Boolean  @default(true)
+  isAdmin         Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   //Relacionamento com a tabela Cliente
   Client   Cliente? @relation(fields: [clientId], references: [id])
@@ -96,6 +106,8 @@ model Cliente {
   address         String?
   documentoFrente String? //Campo para armazenar o caminho/URL da imagem
   documentoVerso  String? //Campo para armazenar o caminho/URL da imagem
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   //Relacionamento com a Tabela Contrato
   contratos Contrato[]
@@ -113,6 +125,8 @@ model HistoricoLocatarios {
   dataEntrada DateTime
   dataSaida   DateTime
   motivoSaida String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   //Relacionamento com a tabela de Cliente
   cliente   Cliente @relation(fields: [clienteID], references: [id])
