@@ -47,7 +47,7 @@ Este servidor backend fornece endpoints HTTP para realizar operações relaciona
 
 ## Autores
 
-- Seu Nome - [Link para GitHub](https://github.com/seuusuario)
+- Wesley Felipe - [Link para GitHub](https://github.com/wesleyDM14)
 
 ## Licença
 
