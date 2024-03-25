@@ -1,5 +1,4 @@
 //prisma models and schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,64 +8,132 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//Definicao da tabela Predio
+model Predio {
+  id       String @id @default(uuid())
+  endereco String
+
+  //Relacionamento com a Tabela Apartamento
+  apartamentos Apartamento[]
+}
+
+//Definicao da tabela Apartamento
+model Apartamento {
+  numeroContrato String @id
+  numero         Int
+  valorBase      Float
+
+  // Relacionamento com a tabela Predio
+  id_predio String
+  predio    Predio @relation(fields: [id_predio], references: [id])
+
+  //Relacionamento com a tabela Contrato
+  contratos Contrato[]
+
+  //Relacionamento com a tabela HistoricoLocatarios
+  HistoricoLocatarios HistoricoLocatarios[]
+}
+
+//Definicao da tabela Contrato
+model Contrato {
+  id                     String         @id @default(uuid())
+  duracaoContrato        Int //Duracao em Meses
+  valorAluguel           Float
+  diaVencimentoPagamento Int //Dia do Mes
+  dataInicio             DateTime
+  statusContrato         StatusContrato
+  limiteKwh              Float //Limite de consumo para gratuidade da conta de energia
+
+  //Relacionamento com a Tabela Apartamento
+  aptId String      @unique
+  apt   Apartamento @relation(fields: [aptId], references: [numeroContrato])
+
+  //Relacionamento com a Tabela Cliente
+  clientId String  @unique
+  cliente  Cliente @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  //Relacionamento com a tabela PresacaoAluguel
+  prestacaoAluguel PrestacaoAluguel[]
+}
+
+//Definicao da tabela PrestacaoAluguel
+model PrestacaoAluguel {
+  id                String          @id @default(uuid())
+  mesReferencia     DateTime //Mes da prestacao de aluguel
+  valor             Float //Valor do alugel
+  dataVencimento    DateTime
+  dataPagamento     DateTime?
+  statusPagamento   StatusPagamento //Status do pagamento (enum)
+  consumoKWh        Int //Quantidade de KWh consumida no mês
+  valorExcedenteKWh Float //Valor do excedente de KWh a ser cobrado
+
+  //Relacionamento com a tabela Contrato
+  contractId String?
+  Contract   Contrato? @relation(fields: [contractId], references: [id])
+}
+
+//Definicao da tabela User
 model User {
-  id         String    @id @default(uuid())
-  name       String
-  email      String    @unique
-  password   String
-  created_at DateTime? @default(now())
-  updated_at DateTime? @default(now())
-  admin      Admin?
-  clients    Client?
+  id              String  @id @default(uuid())
+  email           String  @unique
+  password        String
+  primeiraConexao Boolean @default(true)
+  isAdmin         Boolean @default(false)
 
-  @@map("users")
+  //Relacionamento com a tabela Cliente
+  Client   Cliente? @relation(fields: [clientId], references: [id])
+  clientId String?
 }
 
-model Admin {
-  id   String @id
-  user User   @relation(fields: [id], references: [id], onDelete: Cascade)
+//Definicao da tabela Cliente
+model Cliente {
+  id              String   @id @default(uuid())
+  name            String
+  cpf             String
+  rg              String
+  dateBirth       DateTime
+  phone           String
+  address         String?
+  documentoFrente String? //Campo para armazenar o caminho/URL da imagem
+  documentoVerso  String? //Campo para armazenar o caminho/URL da imagem
+
+  //Relacionamento com a Tabela Contrato
+  contratos Contrato[]
+
+  //Relacionamento com a Tabela User
+  User User[]
+
+  //Relacionamento com a Tabela HistoricoLocatario
+  HistoricoLocatarios HistoricoLocatarios[]
 }
 
-model Client {
-  id        String     @id
-  name      String
-  cpf       String
-  rg        String
-  dateBirth DateTime
-  phone     String
-  address   String?
-  contract  Contract[]
+//Definicao da tabela HistoricoLocatario
+model HistoricoLocatarios {
+  id          String   @id @default(uuid())
+  dataEntrada DateTime
+  dataSaida   DateTime
+  motivoSaida String?
 
-  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+  //Relacionamento com a tabela de Cliente
+  cliente   Cliente @relation(fields: [clienteID], references: [id])
+  clienteID String
 
-  @@map("clients")
+  //Relacionamento com a tabela de Apartamento
+  apartamento Apartamento @relation(fields: [aptID], references: [numeroContrato])
+  aptID       String
 }
 
-model Apartment {
-  contractNumber String        @id
-  number         Int
-  baseValue      Float
-  building       String?
-  ocupado        Boolean    @default(false)
-  created_at     DateTime?  @default(now())
-  updated_at     DateTime?  @default(now())
-  contrat        Contract[]
-
-  @@map("apartments")
+//Enum para representar os status do Contrato (ativo, cancelado ou encerrado)
+enum StatusContrato {
+  ATIVO
+  CANCELADO
+  ENCERRADO
 }
 
-model Contract {
-  id         String    @id @default(uuid())
-  dateStart  DateTime
-  dateEnd    DateTime
-  value      Float
-  status     Boolean
-  created_at DateTime? @default(now())
-  updated_at DateTime? @default(now())
-
-  aptId String    @unique
-  apt   Apartment @relation(fields: [aptId], references: [contractNumber], onDelete: Cascade)
-
-  clientId String @unique
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+//Enum para representar os status do Pagamento (pago, pendente, Atrasado, cancelado)
+enum StatusPagamento {
+  PAGO
+  PENDENTE
+  ATRASADO
+  CANCELADO
 }
