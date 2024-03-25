@@ -42,12 +42,14 @@ export const isAdmin = async (
     next: NextFunction
 ) => {
     try {
+        //Obtem o usuario a partir do ID fornecido pelo token
         const user = await prismaClient.user.findFirst({ where: { id: req.user_id } });
 
         if (!user) {
             return res.status(404).json({ message: 'Usuário não Encontrado' });
         }
 
+        //Verifica se o usuário é um administrador
         if (!user.isAdmin) {
             return res.status(403).json({ message: 'Acessp negado: permissões insuficientes' });
         }
