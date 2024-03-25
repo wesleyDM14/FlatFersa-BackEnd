@@ -5,22 +5,23 @@ import cors from 'cors';
 import { router } from "./routes";
 
 const app = express();
+const PORT = process.env.PORT || 3333;
+
+//Middleware para analisar o corpo das solicitações como JSON
 app.use(express.json());
+
+//Middleware para permitir solicitações de origens diferentes
 app.use(cors());
 
-app.use(router);
+//Middleware para registrar as rotas
+app.use('/api', router);
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (err instanceof Error){
-        return res.status(400).json({
-            error: err.message
-        });
-    }
-
-    return res.status(500).json({
-        status: 'error',
-        message: 'Internal server error.'
-    });
+//Rota de teste
+app.get('/teste', (req, res) => {
+    res.send('Servidor rodando!');
 });
 
-app.listen(3333, () => console.log('Servidor Online'));
+//Inicia o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
