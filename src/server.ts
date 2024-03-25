@@ -16,6 +16,12 @@ app.use(cors());
 //Middleware para registrar as rotas
 app.use('/api', router);
 
+//Middleware para tratamento de erros
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(err);
+    res.status(500).json({ message: 'Ocorreu um erro no servidor' });
+});
+
 //Rota de teste
 app.get('/teste', (req, res) => {
     res.send('Servidor rodando!');
