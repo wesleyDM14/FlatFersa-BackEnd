@@ -6,16 +6,17 @@ interface Payload {
     sub: string;
 }
 
-export function isLoggedIn(
+//Função para verificar se o usuário está autenticado
+export const authenticateUser = async (
     req: Request,
     res: Response,
     next: NextFunction
-) {
+) => {
     //receber o token
     const authToken = req.headers.authorization;
 
     if (!authToken) {
-        return res.status(401).end();
+        return res.status(401).json({ message: 'Token de acesso não fornecido' });
     }
 
     const [, token] = authToken.split(" ");
@@ -33,13 +34,13 @@ export function isLoggedIn(
     } catch (err) {
         return res.status(401).json({ message: 'Token de Acesso Inválido' });
     }
-}
+};
 
-export async function isAdmin(
+export const isAdmin = async (
     req: Request,
     res: Response,
     next: NextFunction
-) {
+) => {
     try {
         const user = await prismaClient.user.findFirst({ where: { id: req.user_id } });
 
@@ -50,7 +51,10 @@ export async function isAdmin(
         if (!user.isAdmin) {
             return res.status(403).json({ message: 'Acessp negado: permissões insuficientes' });
         }
-    } catch (error) {
 
+        return next();
+    } catch (error) {
+        console.error('Erro ao verificar permissões de administrador: ', error);
+        return res.status(500).json({ message: 'Erro interno do servidor' });
     }
 }
