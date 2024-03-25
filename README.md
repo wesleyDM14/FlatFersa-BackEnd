@@ -20,7 +20,7 @@ Este é o repositório do servidor backend para um sistema de gerenciamento de a
 2. **Navegue até o diretório do projeto:**
 
    ```bash
-   cd nomedoprojeto
+   cd FlatFersa-BackEnd
    ```
 
 3. **Instale as dependências do projeto:**
