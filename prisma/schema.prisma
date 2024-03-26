@@ -85,7 +85,6 @@ model User {
   id              String   @id @default(uuid())
   email           String   @unique
   password        String
-  primeiraConexao Boolean  @default(true)
   isAdmin         Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

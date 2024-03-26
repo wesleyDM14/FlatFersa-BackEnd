@@ -51,6 +51,61 @@ class UserService {
             throw new Error('Erro ao criar usuário: ' + error.message);
         }
     }
+
+    async getAllUsers(isAdmin: boolean) {
+        //Verifica se o usuário é um administrador
+        if (!isAdmin) {
+            throw new Error('Apenas administradores podem acessar todos os usuários.');
+        }
+
+        //Obter todos os usuários
+        const users = await prismaClient.user.findMany();
+
+        return users;
+    }
+
+    async getUserById(userId: string, requesterId: string, isAdmin: boolean) {
+        //Verificar se o usuário é o próprio usuário ou um administrador
+        if (userId !== requesterId && !isAdmin) {
+            throw new Error('Você não tem permissão para acessar este usuário.');
+        }
+
+        //obter usuário pelo ID
+        const user = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (!user) {
+            throw new Error('Usuário não encontrado.');
+        }
+
+        return user;
+    }
+
+    async updateUser(userId: string, loggedInUserId: string, isAdmin: boolean, novaSenha: string) {
+
+        if (userId !== loggedInUserId && !isAdmin) {
+            throw new Error('Você não tem permissão para acessar este usuário.');
+        }
+        const existingUser = await prismaClient.user.findUnique({ where: { id: userId } });
+        if (!existingUser) {
+            throw new Error('Usuário não encontrado.');
+        }
+
+        const passwordHash = await hash(novaSenha, 8);
+        novaSenha = passwordHash;
+
+        await prismaClient.user.update({ where: { id: userId }, data: { password: novaSenha } });
+    }
+
+    async deleteUserById(userId: string) {
+        //Verifica se o usuário existe
+        const existingUser = await prismaClient.user.findUnique({ where: { id: userId } });
+        if (!existingUser) {
+            throw new Error('Usuário não encontrado.');
+        }
+
+        //Deletar o usuáro
+        await prismaClient.user.delete({ where: { id: userId } });
+    }
 }
 
 export default UserService;
