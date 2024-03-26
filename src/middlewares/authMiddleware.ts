@@ -3,7 +3,7 @@ import { verify } from 'jsonwebtoken';
 import prismaClient from '../prisma';
 
 interface Payload {
-    sub: string;
+    id: string;
 }
 
 //Função para verificar se o usuário está autenticado
@@ -29,7 +29,7 @@ export const authenticateUser = async (
         ) as Payload;
 
         try {
-            const user = await prismaClient.user.findUnique({ where: { id: validation.sub } });
+            const user = await prismaClient.user.findUnique({ where: { id: validation.id } });
 
             if (!user) {
                 throw new Error('Usuário não encontrado.');

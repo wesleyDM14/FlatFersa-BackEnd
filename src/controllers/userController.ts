@@ -7,6 +7,10 @@ class UserController {
 
     async createUser(req: Request, res: Response) {
         try {
+            //Verificar se o usuário é um administrador
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Apenas administradores podem cadastrar usuário.' });
+            }
             const { email, password, confirmPassword } = req.body;
 
             //Verificar se o email e a senha foram fornecidos
