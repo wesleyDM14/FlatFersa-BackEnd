@@ -53,23 +53,12 @@ class UserService {
     }
 
     async getAllUsers(isAdmin: boolean) {
-        //Verifica se o usuário é um administrador
-        if (!isAdmin) {
-            throw new Error('Apenas administradores podem acessar todos os usuários.');
-        }
-
         //Obter todos os usuários
         const users = await prismaClient.user.findMany();
-
         return users;
     }
 
-    async getUserById(userId: string, requesterId: string, isAdmin: boolean) {
-        //Verificar se o usuário é o próprio usuário ou um administrador
-        if (userId !== requesterId && !isAdmin) {
-            throw new Error('Você não tem permissão para acessar este usuário.');
-        }
-
+    async getUserById(userId: string) {
         //obter usuário pelo ID
         const user = await prismaClient.user.findFirst({ where: { id: userId } });
 
@@ -80,11 +69,8 @@ class UserService {
         return user;
     }
 
-    async updateUser(userId: string, loggedInUserId: string, isAdmin: boolean, novaSenha: string) {
+    async updateUser(userId: string, novaSenha: string) {
 
-        if (userId !== loggedInUserId && !isAdmin) {
-            throw new Error('Você não tem permissão para acessar este usuário.');
-        }
         const existingUser = await prismaClient.user.findUnique({ where: { id: userId } });
         if (!existingUser) {
             throw new Error('Usuário não encontrado.');

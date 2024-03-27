@@ -43,9 +43,13 @@ class PredioController {
             }
             const predioId = req.params.predioId;
 
+            if (!predioId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
             const predio = await predioService.getPredioById(predioId);
 
-            res.json(predio)
+            return res.json(predio)
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: error.message });
@@ -57,12 +61,20 @@ class PredioController {
             const predioId = req.params.predioId;
             const { endereco } = req.body;
 
+            if (!predioId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            if (!endereco) {
+                return res.status(400).json({ message: 'Endereço é obrigatorio.' });
+            }
+
             if (!req.user.isAdmin) {
                 return res.status(403).json({ message: 'Apenas administradores podem atualizar predios.' });
             }
 
             await predioService.updatePredio(predioId, endereco);
-            res.json({ message: 'Predio atualizado com sucesso.' });
+            return res.json({ message: 'Predio atualizado com sucesso.' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: error.message });
@@ -75,8 +87,11 @@ class PredioController {
                 return res.status(403).json({ message: 'Apenas administradores podem deletar predios.' });
             }
             const predioId = req.params.predioId;
+            if (!predioId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
             await predioService.deletePredio(predioId);
-            res.json({ message: 'Prédio deletado com sucesso.' });
+            return res.json({ message: 'Prédio deletado com sucesso.' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: error.message });

@@ -3,10 +3,6 @@ import prismaClient from "../prisma";
 class PredioService {
     async createPredio(endereco: string) {
         try {
-            if (!endereco) {
-                throw new Error('Endereço não pode ser vazio.');
-            }
-
             const newPredio = await prismaClient.predio.create({
                 data: {
                     endereco: endereco

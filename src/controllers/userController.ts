@@ -14,7 +14,7 @@ class UserController {
             const { email, password, confirmPassword } = req.body;
 
             //Verificar se o email e a senha foram fornecidos
-            if (!email || !password) {
+            if (!email || !password || !confirmPassword) {
                 return res.status(400).json({ message: 'O email e a senha são obrigatórios. ' });
             }
 
@@ -53,8 +53,16 @@ class UserController {
             //Extrair o ID do usuário a ser obtido a partir dos parâmetros da solicitação
             const userId = req.params.userId;
 
+            if (!userId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            if (req.user.id !== userId && !req.user.isAdmin) {
+                return res.status(403).json({ message: 'Você não possui autorização para acessar o usuário.' });
+            }
+
             //Chamar o serviço para obter o usuário pelo ID
-            const user = await userService.getUserById(userId, req.user.id, req.user.isAdmin);
+            const user = await userService.getUserById(userId);
 
             //Retornar uma resposta com o usuário obtido
             res.json(user);
@@ -71,9 +79,21 @@ class UserController {
             const loggedInUserId = req.user.id;
             const isAdmin = req.user.isAdmin;
 
+            if (!userId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            if (!novaSenha || !confirmNovaSenha) {
+                return res.status(400).json({ message: 'As senhas são obrigatórias. ' });
+            }
+
             userService.validatePassword(novaSenha, confirmNovaSenha);
 
-            await userService.updateUser(userId, loggedInUserId, isAdmin, novaSenha);
+            if (req.user.id !== userId && !req.user.isAdmin) {
+                return res.status(403).json({ message: 'Você não possui autorização para editar o usuário.' });
+            }
+
+            await userService.updateUser(userId, novaSenha);
 
             res.json({ message: 'Usuário atualizado com sucesso.' });
         } catch (error) {
@@ -91,6 +111,10 @@ class UserController {
 
             //Extrair o ID do usuário a ser deletado a partir dos parâmetros da solicitação
             const userId = req.params.userId;
+
+            if (!userId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
 
             //Chamar o serviço para deletar o usuário pelo ID
             await userService.deleteUserById(userId);
