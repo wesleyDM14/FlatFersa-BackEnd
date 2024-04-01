@@ -6,11 +6,13 @@ import { AuthController } from './controllers/authController';
 import UserController from './controllers/userController';
 import PredioController from './controllers/predioController';
 import ApartamentoController from './controllers/apartamentoController';
+import ClienteController from './controllers/clienteController';
 
 const router = Router();
 const userController = new UserController();
 const predioController = new PredioController();
 const apartamentoController = new ApartamentoController();
+const clienteController = new ClienteController();
 
 //rota de autenticação
 router.post('/login', AuthController.login);
@@ -33,7 +35,14 @@ router.delete('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartam
 router.post('/users', authenticateUser, isAdmin, userController.createUser.bind(userController));
 router.get('/users', authenticateUser, isAdmin, userController.getAllUsers.bind(userController));
 router.get('/users/:userId', authenticateUser, userController.getUserById.bind(userController));
-router.delete('/users/:userId', authenticateUser, isAdmin, userController.deleteUserById.bind(userController));
 router.put('/users/:userId', authenticateUser, userController.updateUser.bind(userController));
+router.delete('/users/:userId', authenticateUser, isAdmin, userController.deleteUserById.bind(userController));
+
+//CRUD para CLIENTE
+router.post('/clients', authenticateUser, isAdmin, clienteController.createClient.bind(clienteController));
+router.get('/clients', authenticateUser, isAdmin, clienteController.getAllClients.bind(clienteController));
+router.get('/clients/:clientId', authenticateUser, clienteController.getClientById.bind(clienteController));
+router.put('/clients/:clientId', authenticateUser, clienteController.updateClient.bind(clienteController));
+router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController.deleteClient.bind(clienteController));
 
 export { router };

@@ -1,11 +1,6 @@
 import prismaClient from "../prisma";
 import { hash } from "bcryptjs";
 
-interface UserRequest {
-    email: string,
-    password: string,
-}
-
 class UserService {
 
     validatePassword(password: string, confirmPassword: string): void {
@@ -21,7 +16,7 @@ class UserService {
         }
     }
 
-    async createUser({ email, password }: UserRequest) {
+    async createUser(email: string, password: string, clientId: string) {
         try {
             //verificar se o usuário ja existe
             const existingUser = await prismaClient.user.findUnique({
@@ -41,7 +36,8 @@ class UserService {
             const newUser = await prismaClient.user.create({
                 data: {
                     email: email,
-                    password: passwordHash
+                    password: passwordHash,
+                    clientId: clientId
                 }
             });
 
@@ -52,7 +48,7 @@ class UserService {
         }
     }
 
-    async getAllUsers(isAdmin: boolean) {
+    async getAllUsers() {
         //Obter todos os usuários
         const users = await prismaClient.user.findMany();
         return users;

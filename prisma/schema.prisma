@@ -82,12 +82,12 @@ model PrestacaoAluguel {
 
 //Definicao da tabela User
 model User {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  password        String
-  isAdmin         Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   //Relacionamento com a tabela Cliente
   Client   Cliente? @relation(fields: [clientId], references: [id])
@@ -98,8 +98,8 @@ model User {
 model Cliente {
   id              String   @id @default(uuid())
   name            String
-  cpf             String
-  rg              String
+  cpf             String   @unique
+  rg              String   @unique
   dateBirth       DateTime
   phone           String
   address         String?

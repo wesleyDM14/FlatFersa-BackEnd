@@ -11,7 +11,7 @@ class UserController {
             if (!req.user.isAdmin) {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar usuário.' });
             }
-            const { email, password, confirmPassword } = req.body;
+            const { email, password, confirmPassword, clienteId } = req.body;
 
             //Verificar se o email e a senha foram fornecidos
             if (!email || !password || !confirmPassword) {
@@ -22,7 +22,7 @@ class UserController {
             userService.validatePassword(password, confirmPassword);
 
             //Criar o usuário
-            const newUser = await userService.createUser({ email, password });
+            const newUser = await userService.createUser(email, password, clienteId);
             res.status(201).json(newUser);
         } catch (error) {
             console.error(error);
@@ -38,7 +38,7 @@ class UserController {
             }
 
             //Chamar o serviço para obter todos os usuários
-            const users = await userService.getAllUsers(req.user.isAdmin);
+            const users = await userService.getAllUsers();
 
             //Retronar uma resposta com todos os usuários
             res.json(users);
@@ -76,8 +76,6 @@ class UserController {
         try {
             const userId = req.params.userId;
             const { novaSenha, confirmNovaSenha } = req.body;
-            const loggedInUserId = req.user.id;
-            const isAdmin = req.user.isAdmin;
 
             if (!userId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
