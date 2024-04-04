@@ -62,23 +62,29 @@ model Contrato {
   prestacaoAluguel PrestacaoAluguel[]
 }
 
+//PIX DE PAGAMENTO ONLINE
+//(84)999381079
+//SICRED - Anael Antonio Nunes da Costa
+
 //Definicao da tabela PrestacaoAluguel
 model PrestacaoAluguel {
   id                String          @id @default(uuid())
-  mesReferencia     DateTime //Mes da prestacao de aluguel
+  mesReferencia     Int //Mes da prestacao de aluguel
   valor             Float //Valor do alugel
   dataVencimento    DateTime
   dataPagamento     DateTime?
-  statusPagamento   StatusPagamento //Status do pagamento (enum)
-  consumoKWh        Int //Quantidade de KWh consumida no mês
-  valorExcedenteKWh Float //Valor do excedente de KWh a ser cobrado
+  statusPagamento   StatusPagamento @default(PENDENTE) //Status do pagamento (enum)
+  consumoKWh        Int? //Quantidade de KWh consumida no mês
+  valorExcedenteKWh Float? //Valor do excedente de KWh a ser cobrado
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
   //Relacionamento com a tabela Contrato
-  contractId String?
-  Contract   Contrato? @relation(fields: [contractId], references: [id])
+  contractId String
+  Contract   Contrato @relation(fields: [contractId], references: [id])
 }
+
+//Calculo de consumo pela tarifa da cosern TE TUSD, do excedente no contrato.
 
 //Definicao da tabela User
 model User {
@@ -146,6 +152,7 @@ enum StatusContrato {
 //Enum para representar os status do Pagamento (pago, pendente, Atrasado, cancelado)
 enum StatusPagamento {
   PAGO
+  AGUARDANDO
   PENDENTE
   ATRASADO
   CANCELADO

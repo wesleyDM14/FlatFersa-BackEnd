@@ -7,12 +7,14 @@ import UserController from './controllers/userController';
 import PredioController from './controllers/predioController';
 import ApartamentoController from './controllers/apartamentoController';
 import ClienteController from './controllers/clienteController';
+import ContratoController from './controllers/contratoController';
 
 const router = Router();
 const userController = new UserController();
 const predioController = new PredioController();
 const apartamentoController = new ApartamentoController();
 const clienteController = new ClienteController();
+const contratoController = new ContratoController();
 
 //rota de autenticação
 router.post('/login', AuthController.login);
@@ -44,5 +46,14 @@ router.get('/clients', authenticateUser, isAdmin, clienteController.getAllClient
 router.get('/clients/:clientId', authenticateUser, clienteController.getClientById.bind(clienteController));
 router.put('/clients/:clientId', authenticateUser, clienteController.updateClient.bind(clienteController));
 router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController.deleteClient.bind(clienteController));
+
+//CRUD para CONTRATO
+router.post('/contratos', authenticateUser, isAdmin, contratoController.createContrato.bind(contratoController));
+router.get('/contratos', authenticateUser, isAdmin, contratoController.getContratos.bind(contratoController));
+router.get('/contratos/:contratoId', authenticateUser, contratoController.getContratoById.bind(contratoController));
+router.put('/contratos/:contratoId', authenticateUser, isAdmin, contratoController.updateContrato.bind(contratoController));
+router.delete('/contratos/:contratoId', authenticateUser, isAdmin, contratoController.deleteContrato.bind(contratoController));
+
+//CRUD para PRESTAÇÃO ALUGUEL
 
 export { router };
