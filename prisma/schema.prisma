@@ -81,7 +81,7 @@ model PrestacaoAluguel {
 
   //Relacionamento com a tabela Contrato
   contractId String
-  Contract   Contrato @relation(fields: [contractId], references: [id])
+  Contract   Contrato @relation(fields: [contractId], references: [id], onDelete: Cascade)
 }
 
 //Calculo de consumo pela tarifa da cosern TE TUSD, do excedente no contrato.

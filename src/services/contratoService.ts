@@ -2,6 +2,7 @@ import { addMonths } from "date-fns";
 
 import prismaClient from "../prisma";
 import PrestacaoService from "./prestacaoService";
+import { StatusContrato } from "@prisma/client";
 
 class ContratoService {
 
@@ -91,22 +92,41 @@ class ContratoService {
         return contratos;
     }
 
-    async getContratoById(contratoId: string) {
+    async getContratoById(contratoId: string, userId: string, isAdmin: boolean) {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractExisting) {
             throw new Error('Contrato não encontrado no banco de dados.');
         }
 
+        if (!isAdmin && contractExisting.clientId !== userId) {
+            throw new Error('Você não possui autorização para acessar o contrato.');
+        }
         return contractExisting;
     }
 
-    async updateContrato(contratoId: string) {
-
+    async updateContrato(contratoId: string, novoStatus: StatusContrato) {
+        const contratoExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+        if (!contratoExisting) {
+            throw new Error('Contrato não encontrado no banco de dados.');
+        }
+        await prismaClient.contrato.update({
+            where: {
+                id: contratoId
+            },
+            data: {
+                statusContrato: novoStatus
+            }
+        });
     }
 
     async deleteContrato(contratoId: string) {
+        const contratoExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+        if (!contratoExisting) {
+            throw new Error('Contrato não encontrado no banco de dados.');
+        }
 
+        await prismaClient.contrato.delete({ where: { id: contratoId } });
     }
 
 }
