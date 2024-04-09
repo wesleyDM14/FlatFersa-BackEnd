@@ -91,12 +91,18 @@ class ClienteService {
         return client;
     }
 
-    async updateClient(clientId: string, dadosAtualizados: any) {
+    async updateClient(clientId: string, userId: string, isAdmin: boolean, dadosAtualizados: any) {
         try {
             //Verifica se o cliente existe
             const clientExisting = await prismaClient.cliente.findUnique({ where: { id: clientId } });
             if (!clientExisting) {
                 throw new Error('Cliente não encontrado.');
+            }
+
+            const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+            if (clientId !== userLoggedIn.clientId && !isAdmin) {
+                throw new Error('Você não tem permissão para acessar este contrato.');
             }
 
             //Remove campos nulos dos dados atualizados

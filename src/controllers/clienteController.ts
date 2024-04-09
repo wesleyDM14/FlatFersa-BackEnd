@@ -63,11 +63,7 @@ class ClienteController {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            if (req.user.id !== clientId && !req.user.isAdmin) {
-                return res.status(403).json({ message: 'Você não possui autorização para acessar o usuário.' });
-            }
-
-            await clienteService.updateClient(clientId, req.body);
+            await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, req.body);
             res.json({ message: 'Cliente atualizado com sucesso.' });
         } catch (error) {
             console.error(error);

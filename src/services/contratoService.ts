@@ -99,7 +99,9 @@ class ContratoService {
             throw new Error('Contrato não encontrado no banco de dados.');
         }
 
-        if (!isAdmin && contractExisting.clientId !== userId) {
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (!isAdmin && contractExisting.clientId !== userLoggedIn.clientId) {
             throw new Error('Você não possui autorização para acessar o contrato.');
         }
         return contractExisting;

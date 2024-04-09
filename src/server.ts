@@ -3,6 +3,7 @@ import 'express-async-errors';
 import cors from 'cors';
 
 import { router } from "./routes";
+import { verificaPrestacoesEmAtraso } from "./services/verificaPrestacaoService";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -26,6 +27,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 app.get('/teste', (req, res) => {
     res.send('Servidor rodando!');
 });
+
+verificaPrestacoesEmAtraso();
 
 //Inicia o servidor
 app.listen(PORT, () => {

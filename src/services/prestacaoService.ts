@@ -1,3 +1,6 @@
+import { StatusPagamento } from "@prisma/client";
+import { CronJob } from "cron";
+
 import prismaClient from "../prisma";
 
 class PrestacaoService {
@@ -25,11 +28,41 @@ class PrestacaoService {
         }
     }
 
-    async getPrestacoesByContratoId(contratoId: string) {
+    async getAllPrestacoes() {
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany();
+        return prestacoes;
+    }
+
+    async getPrestacaoById(prestacaoId: string, userId: string, isAdmin: boolean) {
+
+        const prestacao = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacao) {
+            throw new Error('Prestacao nao encontrada no banco de dados.');
+        }
+
+        const contractByPrestacaoID = await prismaClient.contrato.findFirst({ where: { id: prestacao.contractId } });
+
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (contractByPrestacaoID.clientId !== userLoggedIn.clientId && !isAdmin) {
+            throw new Error('Sem permissão para acessar a prestação.');
+        }
+
+        return prestacao;
+    }
+
+    async getPrestacoesByContratoId(contratoId: string, userId: string, isAdmin: boolean) {
         const contractAlreadyExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractAlreadyExisting) {
             throw new Error('Contrato não encontrado no Banco de Dados.');
+        }
+
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (contractAlreadyExisting.clientId !== userLoggedIn.clientId && !isAdmin) {
+            throw new Error('Você não tem permissão para acessar este contrato.');
         }
 
         const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contratoId } });
@@ -42,6 +75,68 @@ class PrestacaoService {
         return prestacoes;
     }
 
+    async updatePrestacao(prestacaoId: string, consumoKWh: number) {
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacaoExisting) {
+            throw new Error('Prestação de aluguel não encontrada no banco de dados.');
+        }
+
+        const contratoByPrestacao = await prismaClient.contrato.findFirst({ where: { id: prestacaoExisting.contractId } });
+
+        const tarifaCosern = 0.67257;
+        let valorAdicional = 0;
+
+        const valorExcedenteKWh = consumoKWh - contratoByPrestacao.limiteKwh;
+
+        if (valorExcedenteKWh > 0) {
+            valorAdicional = valorExcedenteKWh * tarifaCosern;
+        }
+
+        let newValue = prestacaoExisting.valor + valorAdicional;
+
+        await prismaClient.prestacaoAluguel.update({
+            where: {
+                id: prestacaoId
+            },
+            data: {
+                valorExcedenteKWh: valorAdicional,
+                valor: newValue,
+                consumoKWh: consumoKWh
+            }
+        });
+    }
+
+    async registrarPagamento(prestacaoId: string) {
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacaoExisting) {
+            throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+        }
+
+        if (prestacaoExisting.statusPagamento === StatusPagamento.PAGO || prestacaoExisting.statusPagamento === StatusPagamento.CANCELADO) {
+            throw new Error('Prestação já se encontra fechada no sistema.');
+        }
+
+        await prismaClient.prestacaoAluguel.update({
+            where: {
+                id: prestacaoId
+            },
+            data: {
+                statusPagamento: StatusPagamento.PAGO
+            }
+        });
+    }
+
+    async deletePrestacao(prestacaoId: string) {
+        const existingPretacao = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!existingPretacao) {
+            throw new Error('Prestação de aluguel não encontrado no banco de dados.');
+        }
+
+        await prismaClient.prestacaoAluguel.delete({ where: { id: prestacaoId } });
+    }
 }
 
 export default PrestacaoService;
