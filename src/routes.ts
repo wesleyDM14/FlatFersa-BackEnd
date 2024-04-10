@@ -63,7 +63,8 @@ router.get('/aluguel/:prestacaoId', authenticateUser, prestacaoController.getPre
 router.get('/aluguel/contrato/:contratoId', authenticateUser, prestacaoController.getPrestacoesByContratoId.bind(prestacaoController));
 router.get('/aluguel/mes/:mesReferencia', authenticateUser, isAdmin, prestacaoController.getPrestacoesByMouth.bind(prestacaoController));
 router.put('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.updatePrestacao.bind(prestacaoController));
-router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, isAdmin, prestacaoController.registraPagamento.bind(prestacaoController));
+router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, prestacaoController.registraPagamento.bind(prestacaoController));
+router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));
 router.delete('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.deletePrestacao.bind(prestacaoController));
 
 export { router };

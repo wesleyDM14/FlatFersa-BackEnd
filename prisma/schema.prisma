@@ -76,6 +76,7 @@ model PrestacaoAluguel {
   statusPagamento   StatusPagamento @default(PENDENTE) //Status do pagamento (enum)
   consumoKWh        Int? //Quantidade de KWh consumida no mês
   valorExcedenteKWh Float? //Valor do excedente de KWh a ser cobrado
+  multa             Float?          @default(0)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 

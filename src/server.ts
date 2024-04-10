@@ -28,6 +28,18 @@ app.get('/teste', (req, res) => {
     res.send('Servidor rodando!');
 });
 
+/*app.get('/testePDF', async (req, res) => {
+    const stream = res.writeHead(200, {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=contrato.pdf",
+    });
+    gerarContratoPDF(
+        (data) => stream.write(data), 
+        () => stream.end()
+    );
+    res.send('invoice');
+});*/
+
 verificaPrestacoesEmAtraso();
 
 //Inicia o servidor

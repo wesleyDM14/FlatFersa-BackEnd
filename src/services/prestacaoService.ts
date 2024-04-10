@@ -93,15 +93,12 @@ class PrestacaoService {
             valorAdicional = valorExcedenteKWh * tarifaCosern;
         }
 
-        let newValue = prestacaoExisting.valor + valorAdicional;
-
         await prismaClient.prestacaoAluguel.update({
             where: {
                 id: prestacaoId
             },
             data: {
                 valorExcedenteKWh: valorAdicional,
-                valor: newValue,
                 consumoKWh: consumoKWh
             }
         });
@@ -123,9 +120,36 @@ class PrestacaoService {
                 id: prestacaoId
             },
             data: {
-                statusPagamento: StatusPagamento.PAGO
+                statusPagamento: StatusPagamento.AGUARDANDO
             }
         });
+    }
+
+    async aprovaPagamento(prestacaoId: string) {
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacaoExisting) {
+            throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+        }
+
+        if (prestacaoExisting.statusPagamento === StatusPagamento.PAGO || prestacaoExisting.statusPagamento === StatusPagamento.CANCELADO) {
+            throw new Error('Prestação já se encontra fechada no sistema.');
+        }
+
+        if (prestacaoExisting.statusPagamento === StatusPagamento.AGUARDANDO) {
+            await prismaClient.prestacaoAluguel.update({
+                where: {
+                    id: prestacaoId
+                },
+                data: {
+                    statusPagamento: StatusPagamento.PAGO
+                }
+            });
+        } else {
+            throw new Error('Prestação de aluguel não consta como paga.');
+        }
+
+
     }
 
     async deletePrestacao(prestacaoId: string) {
