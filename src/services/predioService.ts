@@ -1,11 +1,14 @@
 import prismaClient from "../prisma";
 
 class PredioService {
-    async createPredio(endereco: string) {
+    async createPredio(endereco: string, bairro: string, cidade: string, estado: string) {
         try {
             const newPredio = await prismaClient.predio.create({
                 data: {
-                    endereco: endereco
+                    endereco: endereco,
+                    bairro: bairro,
+                    cidade: cidade,
+                    estado: estado
                 }
             });
 
@@ -31,14 +34,24 @@ class PredioService {
         return predio;
     }
 
-    async updatePredio(predioId: string, endereco: string) {
+    async updatePredio(predioId: string, endereco: string, bairro: string, cidade: string, estado: string) {
         const existingPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
         if (!existingPredio) {
             throw new Error('Predio não encontrado.');
         }
 
-        await prismaClient.predio.update({ where: { id: predioId }, data: { endereco: endereco } });
+        await prismaClient.predio.update({
+            where: {
+                id: predioId
+            },
+            data: {
+                endereco: endereco,
+                bairro: bairro,
+                cidade: cidade,
+                estado: estado
+            }
+        });
     }
 
     async deletePredio(predioId: string) {

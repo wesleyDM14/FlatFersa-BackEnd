@@ -3,7 +3,7 @@ import 'express-async-errors';
 import cors from 'cors';
 
 import { router } from "./routes";
-import { verificaPrestacoesEmAtraso } from "./services/verificaPrestacaoService";
+import { verificaPrestacoesEmAtraso, aplicarMulta } from "./services/verificaPrestacaoService";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -33,14 +33,15 @@ app.get('/teste', (req, res) => {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=contrato.pdf",
     });
-    gerarContratoPDF(
-        (data) => stream.write(data), 
+    gerarContratoPDF('null',
+        (data) => stream.write(data),
         () => stream.end()
     );
     res.send('invoice');
 });*/
 
 verificaPrestacoesEmAtraso();
+aplicarMulta();
 
 //Inicia o servidor
 app.listen(PORT, () => {

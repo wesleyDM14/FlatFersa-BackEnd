@@ -2,13 +2,14 @@ import prismaClient from "../prisma";
 
 class ApartamentoService {
 
-    async createApartamento(numeroContrato: string, numero: number, valorBase: number, predioId: string) {
+    async createApartamento(numeroContrato: string, numero: number, valorBase: number, climatizado: boolean, predioId: string) {
         try {
             const newApartamento = await prismaClient.apartamento.create({
                 data: {
                     numeroContrato: numeroContrato,
                     numero: numero,
                     valorBase: valorBase,
+                    climatizado: climatizado,
                     id_predio: predioId
                 }
             });
@@ -35,7 +36,7 @@ class ApartamentoService {
         return apartamento;
     }
 
-    async updateApartamento(apartamentoId: string, numero: number, valorBase: number) {
+    async updateApartamento(apartamentoId: string, climatizado: boolean, valorBase: number) {
         const existingApartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: apartamentoId } });
 
         if (!existingApartamento) {
@@ -47,7 +48,7 @@ class ApartamentoService {
                 numeroContrato: apartamentoId
             },
             data: {
-                numero: numero,
+                climatizado: climatizado,
                 valorBase: valorBase
             }
         });

@@ -12,6 +12,9 @@ datasource db {
 model Predio {
   id        String   @id @default(uuid())
   endereco  String
+  bairro    String
+  cidade    String
+  estado    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -24,6 +27,7 @@ model Apartamento {
   numeroContrato String   @id
   numero         Int
   valorBase      Float
+  climatizado    Boolean
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -40,15 +44,16 @@ model Apartamento {
 
 //Definicao da tabela Contrato
 model Contrato {
-  id                     String         @id @default(uuid())
+  id                     String                @id @default(uuid())
   duracaoContrato        Int //Duracao em Meses
   valorAluguel           Float
   diaVencimentoPagamento Int //Dia do Mes
   dataInicio             DateTime
   statusContrato         StatusContrato
   limiteKwh              Float //Limite de consumo para gratuidade da conta de energia
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
+  periodicidadeReajuste  PeriodicidadeContrato @default(ANUALMENTE)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
 
   //Relacionamento com a Tabela Apartamento
   aptId String      @unique
@@ -99,6 +104,8 @@ model User {
   //Relacionamento com a tabela Cliente
   Client   Cliente? @relation(fields: [clientId], references: [id])
   clientId String?
+
+  Avisos Avisos[]
 }
 
 //Definicao da tabela Cliente
@@ -143,9 +150,20 @@ model HistoricoLocatarios {
   aptID       String
 }
 
+model Avisos {
+  id        String   @id @default(uuid())
+  readed    Boolean  @default(false)
+  content   String //Conteudo do aviso
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
 //Enum para representar os status do Contrato (ativo, cancelado ou encerrado)
 enum StatusContrato {
   ATIVO
+  AGUARDANDO
   CANCELADO
   ENCERRADO
 }
@@ -157,4 +175,9 @@ enum StatusPagamento {
   PENDENTE
   ATRASADO
   CANCELADO
+}
+
+enum PeriodicidadeContrato {
+  SEMESTRALMENTE
+  ANUALMENTE
 }

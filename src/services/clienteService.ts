@@ -39,7 +39,7 @@ class ClienteService {
             }
 
             try {
-                const transaction = await prismaClient.$transaction(async (prisma) => {
+                await prismaClient.$transaction(async (prisma) => {
                     const newClient = await prisma.cliente.create({
                         data: {
                             name: name,

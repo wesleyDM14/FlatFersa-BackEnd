@@ -38,30 +38,35 @@ async function aplicarMulta() {
             }
         });
 
-        for (const prestacao of prestacoesEmAtraso) {
-            const { id, valor, dataVencimento } = prestacao;
+        await Promise.all(
+            prestacoesEmAtraso.map(async (prestacao) => {
+                const { id, valor, dataVencimento } = prestacao;
 
-            const mesesEmAtraso = differenceInMonths(new Date(), dataVencimento);
+                const mesesEmAtraso = differenceInMonths(new Date(), dataVencimento);
 
-            if (mesesEmAtraso > 0) {
-                const multa = valor * Math.pow(1 + 0.02, mesesEmAtraso);
+                if (mesesEmAtraso > 0) {
+                    const multa = valor * Math.pow(1 + 0.02, mesesEmAtraso);
 
-                await prismaClient.prestacaoAluguel.update({
-                    where: {
-                        id: id
-                    },
-                    data: {
-                        multa: multa
-                    }
-                });
-            }
-        }
+                    await prismaClient.prestacaoAluguel.update({
+                        where: {
+                            id: id
+                        },
+                        data: {
+                            multa: multa
+                        }
+                    });
+                }
+            })
+        );
+        console.log('Aplicação de multas concluidas.');
     } catch (error) {
         console.error('Erro ao aplicar multas nas prestações em atraso: ' + error.message);
     }
 }
 
 const job = new CronJob('0 0 * * *', verificaPrestacoesEmAtraso);
+const jobMulta = new CronJob('0 0 * * *', aplicarMulta);
 job.start();
+jobMulta.start();
 
 export { verificaPrestacoesEmAtraso, aplicarMulta }
