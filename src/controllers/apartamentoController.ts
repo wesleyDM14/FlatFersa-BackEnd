@@ -12,7 +12,7 @@ class ApartamentoController {
             }
 
             const { numeroContrato, numero, valorBase, climatizado, predioId } = req.body;
-
+            
             if (!numeroContrato || !numero || !valorBase || !predioId) {
                 return res.status(400).json({ message: 'As informações de Apartamento são obrigatórias.' });
             }

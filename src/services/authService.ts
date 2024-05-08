@@ -8,7 +8,7 @@ export const generateAccessToken = (userID: string): string => {
 }
 
 //funcao para autenticar o usuário e gerar um token de acesso
-export const authenticateUser = async (email: string, password: string): Promise<string | null> => {
+export const authenticateUser = async (email: string, password: string) => {
     try {
         //verifica se o usuário com o email fornecido existe no banco de dados
         const user = await prismaClient.user.findFirst({
@@ -29,7 +29,8 @@ export const authenticateUser = async (email: string, password: string): Promise
 
         //Gera e retorna um token de acesso se a autenticação for bem-sucedida
         const accessToken = generateAccessToken(user.id);
-        return accessToken;
+        const isAdmin = user.isAdmin;
+        return { accessToken, isAdmin };
 
     } catch (error) {
         console.error('Error ao autenticar usuário: ', error);

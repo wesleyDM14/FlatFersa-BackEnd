@@ -62,7 +62,7 @@ class ContratoService {
                         }
                     });
 
-                    let dataVencimento = dataInicio;
+                    let dataVencimento = new Date(dataInicio);
                     dataVencimento.setDate(diaVencimentoAluguel);
 
                     let parcelas = [];
@@ -70,7 +70,15 @@ class ContratoService {
                     for (let index = 0; index < duracaoContrato; index++) {
                         dataVencimento = addMonths(dataVencimento, index);
                         let mesReferencia = dataVencimento.getMonth() + 1;
-                        let aux = await this.prestacaoService.createPrestacao(mesReferencia, valorAluguel, dataVencimento, newContrato.id);
+                        //let aux = await this.prestacaoService.createPrestacao(mesReferencia, valorAluguel, dataVencimento, newContrato.id);
+                        let aux = await prisma.prestacaoAluguel.create({
+                            data: {
+                                contractId: newContrato.id,
+                                dataVencimento: dataVencimento,
+                                valor: valorAluguel,
+                                mesReferencia: mesReferencia,
+                            }
+                        });
                         parcelas.push(aux);
                     }
 

@@ -37,8 +37,8 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem acessar todos os contratos.' });
             }
 
-            const contratos = contratoService.getAllContratos();
-
+            const contratos = await contratoService.getAllContratos();
+        
             res.json(contratos);
         } catch (error) {
             console.error(error);

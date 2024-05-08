@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit';
 import { addMonths, format } from 'date-fns';
 
 import prismaClient from '../prisma';
+import { Request, Response } from 'express';
 
 export async function gerarContratoPDF(contratoId: string, dataCallback: any, endCallback: any) {
 
@@ -29,15 +30,15 @@ export async function gerarContratoPDF(contratoId: string, dataCallback: any, en
         doc.font('Times-Bold').fontSize(12).text('Contrato de Locação de Imóvel', { align: 'center' });
         doc.moveDown();
         doc.font('Times-Roman').fontSize(12).text('LOCADOR: Anael Antonio Nunes da Costa', { align: 'justify', continued: true, });
-        doc.font('Times-Roman').fontSize(12).text('CPF: 850.941.374-68', { align: 'justify' });
+        doc.font('Times-Roman').fontSize(12).text(' CPF: 850.941.374-68', { align: 'justify' });
         doc.font('Times-Roman').fontSize(12).text(`LOCATARIO: ${cliente.name}`, { continued: true, align: 'justify' });
-        doc.font('Times-Roman').fontSize(12).text(`TELEFONE: ${cliente.phone}`, { align: 'justify' });
+        doc.font('Times-Roman').fontSize(12).text(` TELEFONE: ${cliente.phone}`, { align: 'justify' });
         doc.font('Times-Roman').fontSize(12).text(`CPF: ${cliente.cpf}`, { continued: true, align: 'justify' });
-        doc.font('Times-Roman').fontSize(12).text(`RG: ${cliente.rg}`, { align: 'justify' });
+        doc.font('Times-Roman').fontSize(12).text(` RG: ${cliente.rg}`, { align: 'justify' });
         doc.font('Times-Roman').fontSize(12).text(`IMÓVEL: Residencial, localizado na ${predio.endereco}, apt. ${apartamento.numero} – ${predio.bairro}, no município de ${predio.cidade}/${predio.estado}. `, { align: 'justify' });
         doc.font('Times-Roman').fontSize(12).text('FINALIDADE: Residencial', { align: 'justify' });
         doc.font('Times-Roman').fontSize(12).text('ATIVIDADE: Residência', { align: 'justify' });
-        doc.font('Times-Roman').fontSize(12).text(`PRAZO DA LOCAÇÃO: ${contractExisting.duracaoContrato}`, { align: 'justify' });
+        doc.font('Times-Roman').fontSize(12).text(`PRAZO DA LOCAÇÃO: ${contractExisting.duracaoContrato} meses`, { align: 'justify' });
         let dataInicioFormatada = format(contractExisting.dataInicio, 'dd/MM/yyyy');
         doc.font('Times-Roman').fontSize(12).text(`INÍCIO: ${dataInicioFormatada}`, { align: 'justify' });
         let endData = addMonths(contractExisting.dataInicio, contractExisting.duracaoContrato);

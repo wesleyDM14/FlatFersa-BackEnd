@@ -96,6 +96,23 @@ class PrestacaoController {
         }
     }
 
+    async getPrestacaoByUserId(req: Request, res: Response) {
+        try {
+            const clientId = req.user.id;
+
+            if (!clientId) {
+                return res.status(400).json({ message: 'ID de cliente não fornecido.' });
+            }
+
+            const prestacoes = await prestacaoService.getPrestacaoByUserId(clientId, req.user.id);
+
+            return res.status(200).json(prestacoes);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao obter as prestações do usuário.' });
+        }
+    }
+
     async updatePrestacao(req: Request, res: Response) {
         try {
             if (req.user.isAdmin) {

@@ -11,10 +11,12 @@ datasource db {
 //Definicao da tabela Predio
 model Predio {
   id        String   @id @default(uuid())
+  nome      String
   endereco  String
   bairro    String
   cidade    String
   estado    String
+  numApt    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -102,8 +104,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   //Relacionamento com a tabela Cliente
-  Client   Cliente? @relation(fields: [clientId], references: [id])
   clientId String?
+  Client   Cliente? @relation(fields: [clientId], references: [id])
 
   Avisos Avisos[]
 }

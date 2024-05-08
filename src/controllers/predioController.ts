@@ -9,13 +9,17 @@ class PredioController {
             if (!req.user.isAdmin) {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar predio.' });
             }
-            const { endereco, bairro, cidade, estado } = req.body;
+            const { endereco, bairro, cidade, estado, numApt, nome } = req.body;
 
+            if (!nome) {
+                return res.status(400).json({ message: 'Nome é obrogatório.' });
+            }
+            
             if (!endereco || !bairro || !cidade || !estado) {
                 return res.status(400).json({ message: 'Endereco é obrogatório.' });
             }
 
-            const newPredio = await predioService.createPredio(endereco, bairro, cidade, estado);
+            const newPredio = await predioService.createPredio(endereco, bairro, cidade, estado, numApt, nome);
             res.status(201).json(newPredio);
         } catch (error) {
             console.error(error);
@@ -59,7 +63,7 @@ class PredioController {
     async updatePredio(req: Request, res: Response) {
         try {
             const predioId = req.params.predioId;
-            const { endereco, bairro, cidade, estado } = req.body;
+            const { endereco, bairro, cidade, estado, numApt } = req.body;
 
             if (!predioId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
@@ -73,7 +77,7 @@ class PredioController {
                 return res.status(403).json({ message: 'Apenas administradores podem atualizar predios.' });
             }
 
-            await predioService.updatePredio(predioId, endereco, bairro, cidade, estado);
+            await predioService.updatePredio(predioId, endereco, bairro, cidade, estado, numApt);
             return res.json({ message: 'Predio atualizado com sucesso.' });
         } catch (error) {
             console.error(error);

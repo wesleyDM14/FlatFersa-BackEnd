@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import { router } from "./routes";
 import { verificaPrestacoesEmAtraso, aplicarMulta } from "./services/verificaPrestacaoService";
+import { gerarContratoPDF } from "./services/gerarContratoPDF";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -28,17 +29,19 @@ app.get('/teste', (req, res) => {
     res.send('Servidor rodando!');
 });
 
-/*app.get('/testePDF', async (req, res) => {
+app.get('/testePDF/:contratoId', async (req, res) => {
+    const contratoId = req.params.contratoId;
     const stream = res.writeHead(200, {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=contrato.pdf",
     });
-    gerarContratoPDF('null',
+    await gerarContratoPDF(contratoId,
         (data) => stream.write(data),
         () => stream.end()
     );
+    
     res.send('invoice');
-});*/
+});
 
 verificaPrestacoesEmAtraso();
 aplicarMulta();

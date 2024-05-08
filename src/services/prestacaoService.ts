@@ -70,6 +70,26 @@ class PrestacaoService {
         return prestacoes;
     }
 
+    async getPrestacaoByUserId(clientId: string, userId: string) {
+        const clientAlreadyExisting = await prismaClient.cliente.findFirst({ where: { id: clientId } });
+        console.log(clientAlreadyExisting);
+        if (!clientAlreadyExisting) {
+            throw new Error('Cliente não encontrado no Banco de Dados.');
+        }
+
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        const contractAlreadyExisting = await prismaClient.contrato.findFirst({ where: { clientId: clientAlreadyExisting.id } });
+        console.log(contractAlreadyExisting);
+        if (contractAlreadyExisting.clientId !== userLoggedIn.clientId) {
+            throw new Error('Você não tem permissão para acessar este contrato.');
+        }
+
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contractAlreadyExisting.id } });
+        console.log(prestacoes);
+        return prestacoes;
+    }
+
     async getPrestacoesByMounth(mesReferencia: number) {
         const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { mesReferencia: mesReferencia } });
         return prestacoes;

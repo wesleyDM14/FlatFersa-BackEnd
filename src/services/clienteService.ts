@@ -1,5 +1,6 @@
 import prismaClient from "../prisma";
 import UserService from "./userService";
+import { hash } from "bcryptjs";
 
 class ClienteService {
 
@@ -38,6 +39,8 @@ class ClienteService {
                 throw new Error('O email já está sendo usado por outro usuário.');
             }
 
+            const passwordHash = await hash(cpf, 8);
+
             try {
                 await prismaClient.$transaction(async (prisma) => {
                     const newClient = await prisma.cliente.create({
@@ -53,7 +56,13 @@ class ClienteService {
                         }
                     });
 
-                    const newUser = await this.userService.createUser(email, cpf, newClient.id);
+                    const newUser = await prisma.user.create({
+                        data: {
+                            email: email,
+                            password: passwordHash,
+                            clientId: newClient.id
+                        }
+                    });
                     return { cliente: newClient, user: newUser }
                 });
             } catch (error) {
