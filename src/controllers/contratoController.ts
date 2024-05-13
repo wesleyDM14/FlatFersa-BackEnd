@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import ContratoService from "../services/contratoService";
 import { StatusContrato } from "@prisma/client";
+import { gerarContratoPDF } from "../services/gerarContratoPDF";
 
 const contratoService = new ContratoService();
 
@@ -38,7 +39,7 @@ class ContratoController {
             }
 
             const contratos = await contratoService.getAllContratos();
-        
+
             res.json(contratos);
         } catch (error) {
             console.error(error);
@@ -104,6 +105,78 @@ class ContratoController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Erro ao deletar contrato.' });
+        }
+    }
+
+    async downloadContratoById(req: Request, res: Response) {
+        try {
+            const contratoId = req.params.contratoId;
+
+            if (!contratoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const stream = res.writeHead(200, {
+                "Content-Type": "application/pdf",
+                "Content-Disposition": "attachment; filename=contrato.pdf",
+            });
+
+            await gerarContratoPDF(contratoId, req.user.id,
+                (data) => stream.write(data),
+                () => stream.end()
+            );
+
+            res.send('invoice');
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao baixar contrato.' });
+        }
+    }
+
+    async solicitarContrato(req: Request, res: Response) {
+        try {
+            const { duracaoContrato, diaVencimentoAluguel, dataInicio, aptId } = req.body;
+
+            if (!duracaoContrato || !diaVencimentoAluguel || !dataInicio || !aptId) {
+                return res.status(400).json({ message: 'Por favor, envie os dados de cadastro de contrato corretamente.' });
+            }
+
+            if (duracaoContrato < 6) {
+                return res.status(400).json({ message: 'Duração de contrato não pode ser inferior a 6 meses.' });
+            }
+
+            const newContrato = await contratoService.solicitarContrato(duracaoContrato, diaVencimentoAluguel, dataInicio, aptId, req.user.id);
+            res.status(201).json(newContrato);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao solicitar contrato.' });
+        }
+    }
+
+    async aprovarContrato(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Apenas administradores podem aprovar novos contratos.' });
+            }
+
+            const contratoId = req.params.contratoId;
+            const { valorAluguel } = req.body;
+
+            if (!contratoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            if (!valorAluguel) {
+                return res.status(400).json({ message: 'Informe o valor do Aluguel.' });
+            }
+
+            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel);
+            res.status(200).json(newContrato);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
         }
     }
 

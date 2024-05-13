@@ -168,8 +168,6 @@ class PrestacaoService {
         } else {
             throw new Error('Prestação de aluguel não consta como paga.');
         }
-
-
     }
 
     async deletePrestacao(prestacaoId: string) {

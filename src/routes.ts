@@ -51,8 +51,11 @@ router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController
 
 //CRUD para CONTRATO
 router.post('/contratos', authenticateUser, isAdmin, contratoController.createContrato.bind(contratoController));
+router.post('/contratos/solicitar', authenticateUser, contratoController.solicitarContrato.bind(contratoController));
+router.post('/contratos/aprovar', authenticateUser, isAdmin, contratoController.aprovarContrato.bind(contratoController));
 router.get('/contratos', authenticateUser, isAdmin, contratoController.getContratos.bind(contratoController));
 router.get('/contratos/:contratoId', authenticateUser, contratoController.getContratoById.bind(contratoController));
+router.get('/contratos/download/:contratoId', authenticateUser, contratoController.downloadContratoById.bind(contratoController));
 router.put('/contratos/:contratoId', authenticateUser, isAdmin, contratoController.updateContrato.bind(contratoController));
 router.delete('/contratos/:contratoId', authenticateUser, isAdmin, contratoController.deleteContrato.bind(contratoController));
 

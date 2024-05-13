@@ -4,13 +4,19 @@ import { addMonths, format } from 'date-fns';
 import prismaClient from '../prisma';
 import { Request, Response } from 'express';
 
-export async function gerarContratoPDF(contratoId: string, dataCallback: any, endCallback: any) {
+export async function gerarContratoPDF(contratoId: string, userId: string, dataCallback: any, endCallback: any) {
 
     try {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractExisting) {
             throw new Error('Contrato não encontrado no banco de dados.');
+        }
+
+        const userLoogedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (!userLoogedIn.isAdmin && contractExisting.clientId !== userLoogedIn.clientId) {
+            throw new Error('Sem permissão para baixar o arquivo.');
         }
 
         const cliente = await prismaClient.cliente.findFirst({ where: { id: contractExisting.clientId } });

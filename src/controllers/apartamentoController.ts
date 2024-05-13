@@ -12,7 +12,7 @@ class ApartamentoController {
             }
 
             const { numeroContrato, numero, valorBase, climatizado, predioId } = req.body;
-            
+
             if (!numeroContrato || !numero || !valorBase || !predioId) {
                 return res.status(400).json({ message: 'As informações de Apartamento são obrigatórias.' });
             }
@@ -44,6 +44,7 @@ class ApartamentoController {
             }
 
             const apartamento = await apartamentoService.getApartamentoById(apartamentoId);
+
             return res.json(apartamento);
         } catch (error) {
             console.error(error);
@@ -59,6 +60,7 @@ class ApartamentoController {
             }
 
             const apartamentoId = req.params.apartamentoId;
+
             const { climatizado, valorBase } = req.body;
 
             if (!apartamentoId) {
@@ -70,6 +72,7 @@ class ApartamentoController {
             }
 
             await apartamentoService.updateApartamento(apartamentoId, climatizado, valorBase);
+            
             return res.json({ message: 'Apartamento atualizado com sucesso.' });
 
         } catch (error) {
