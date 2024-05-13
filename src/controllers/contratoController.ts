@@ -13,9 +13,9 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar novos contratos.' });
             }
 
-            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId } = req.body;
+            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade } = req.body;
 
-            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || !aptId || !clienteId) {
+            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || !aptId || !clienteId || !periocidade) {
                 return res.status(400).json({ message: 'Por favor, envie os dados de cadastro de contrato corretamente.' });
             }
 
@@ -23,7 +23,7 @@ class ContratoController {
                 return res.status(400).json({ message: 'Duração de contrato não pode ser inferior a 6 meses.' });
             }
 
-            const newContrato = await contratoService.createContrato(duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId);
+            const newContrato = await contratoService.createContrato(duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade);
             res.status(201).json(newContrato);
         } catch (error) {
             console.error(error);
@@ -56,6 +56,17 @@ class ContratoController {
             const contrato = await contratoService.getContratoById(contratoId, req.user.id, req.user.isAdmin);
 
             res.json(contrato);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao obter o contrato.' });
+        }
+    }
+
+    async getContratosByUserLoggedIn(req: Request, res: Response) {
+        try {
+            const userId = req.user.id;
+            const contratos = await contratoService.getContratosByUserLoggedIn(userId);
+            res.json(contratos);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Erro ao obter o contrato.' });
@@ -162,17 +173,17 @@ class ContratoController {
             }
 
             const contratoId = req.params.contratoId;
-            const { valorAluguel } = req.body;
+            const { valorAluguel, periocidade } = req.body;
 
             if (!contratoId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            if (!valorAluguel) {
-                return res.status(400).json({ message: 'Informe o valor do Aluguel.' });
+            if (!valorAluguel || !periocidade) {
+                return res.status(400).json({ message: 'Informe os dados do contrato corretamente.' });
             }
 
-            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel);
+            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel, periocidade);
             res.status(200).json(newContrato);
         } catch (error) {
             console.error(error);

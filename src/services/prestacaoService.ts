@@ -70,23 +70,26 @@ class PrestacaoService {
         return prestacoes;
     }
 
-    async getPrestacaoByUserId(clientId: string, userId: string) {
-        const clientAlreadyExisting = await prismaClient.cliente.findFirst({ where: { id: clientId } });
-        console.log(clientAlreadyExisting);
+    async getPrestacaoByUserId(userId: string) {
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+        
+        const clientAlreadyExisting = await prismaClient.cliente.findFirst({ where: { id: userLoggedIn.clientId } });
+        
         if (!clientAlreadyExisting) {
             throw new Error('Cliente não encontrado no Banco de Dados.');
         }
 
-        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+        const contracts = await prismaClient.contrato.findMany({ where: { clientId: clientAlreadyExisting.id } });
 
-        const contractAlreadyExisting = await prismaClient.contrato.findFirst({ where: { clientId: clientAlreadyExisting.id } });
-        console.log(contractAlreadyExisting);
-        if (contractAlreadyExisting.clientId !== userLoggedIn.clientId) {
-            throw new Error('Você não tem permissão para acessar este contrato.');
-        }
+        let prestacoes = [];
 
-        const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contractAlreadyExisting.id } });
-        console.log(prestacoes);
+        Promise.all(
+            contracts.map(async (contract) => {
+                let prestacaoByContrato = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contract.id } });
+                prestacoes.push(prestacaoByContrato);
+            })
+        );
+
         return prestacoes;
     }
 

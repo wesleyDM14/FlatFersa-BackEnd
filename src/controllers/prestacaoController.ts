@@ -98,13 +98,7 @@ class PrestacaoController {
 
     async getPrestacaoByUserId(req: Request, res: Response) {
         try {
-            const clientId = req.user.id;
-
-            if (!clientId) {
-                return res.status(400).json({ message: 'ID de cliente não fornecido.' });
-            }
-
-            const prestacoes = await prestacaoService.getPrestacaoByUserId(clientId, req.user.id);
+            const prestacoes = await prestacaoService.getPrestacaoByUserId(req.user.id);
 
             return res.status(200).json(prestacoes);
         } catch (error) {

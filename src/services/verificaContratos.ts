@@ -57,12 +57,13 @@ async function verificaContratos() {
                 }
             })
         );
+        console.log('Verificação dos contratos concluida.');
     } catch (error) {
         console.error('Erro ao verificar os contratos: ' + error.message);
     }
 }
 
-const job = new CronJob('0 0 * *', verificaContratos);
+const job = new CronJob('0 0 * * *', verificaContratos);
 job.start();
 
 export { verificaContratos }

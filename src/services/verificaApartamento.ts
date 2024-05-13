@@ -20,13 +20,13 @@ async function verificaApartamentoStatus() {
             })
         );
         console.log('Verificação dos apartamentos concluída.');
-        
+
     } catch (error) {
         console.error('Erro ao verificar status dos apartamentos: ' + error.message);
     }
 }
 
-const job = new CronJob('0 0 * *', verificaApartamentoStatus);
+const job = new CronJob('0 0 * * *', verificaApartamentoStatus);
 job.start();
 
 export { verificaApartamentoStatus }

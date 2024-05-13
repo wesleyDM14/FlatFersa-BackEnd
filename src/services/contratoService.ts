@@ -2,7 +2,7 @@ import { addMonths } from "date-fns";
 
 import prismaClient from "../prisma";
 import PrestacaoService from "./prestacaoService";
-import { StatusContrato, TipoPagamento } from "@prisma/client";
+import { PeriodicidadeContrato, StatusContrato, TipoPagamento } from "@prisma/client";
 
 class ContratoService {
 
@@ -12,7 +12,7 @@ class ContratoService {
         this.prestacaoService = new PrestacaoService();
     }
 
-    async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string) {
+    async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato) {
         try {
             const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { numeroContrato: aptId } });
 
@@ -59,7 +59,8 @@ class ContratoService {
                             limiteKwh: limiteKwh,
                             aptId: aptId,
                             clientId: clientId,
-                            statusContrato: "ATIVO"
+                            statusContrato: StatusContrato.ATIVO,
+                            periodicidadeReajuste: periocidade,
                         }
                     });
 
@@ -121,6 +122,20 @@ class ContratoService {
             throw new Error('Você não possui autorização para acessar o contrato.');
         }
         return contractExisting;
+    }
+
+    async getContratosByUserLoggedIn(userId: string) {
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        const clientAlreadyExisting = await prismaClient.cliente.findFirst({ where: { id: userLoggedIn.clientId } });
+
+        if (!clientAlreadyExisting) {
+            throw new Error('Cliente não encontrado no Banco de Dados.');
+        }
+
+        const contracts = await prismaClient.contrato.findMany({ where: { clientId: clientAlreadyExisting.id } });
+
+        return contracts;
     }
 
     async updateContrato(contratoId: string, novoStatus: StatusContrato) {
@@ -216,7 +231,7 @@ class ContratoService {
         }
     }
 
-    async aprovarContrato(contratoId: string, valorAluguel: number) {
+    async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato) {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractExisting) {
@@ -255,7 +270,10 @@ class ContratoService {
 
                 await prisma.contrato.update({
                     where: { id: contractExisting.id },
-                    data: { statusContrato: StatusContrato.ATIVO }
+                    data: { 
+                        statusContrato: StatusContrato.ATIVO,
+                        periodicidadeReajuste: periocidade
+                    }
                 });
 
                 const clientUser = await prismaClient.user.findFirst({ where: { clientId: contractExisting.clientId } });
