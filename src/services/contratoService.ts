@@ -162,13 +162,17 @@ class ContratoService {
         await prismaClient.contrato.delete({ where: { id: contratoId } });
     }
 
-    async solicitarContrato(duracaoContrato: number, diaVencimentoAluguel: number, dataInicio: Date, aptId: string, clientId: string) {
+    async solicitarContrato(duracaoContrato: number, diaVencimentoAluguel: number, dataInicio: Date, aptId: string, userId: string) {
         try {
             const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { numeroContrato: aptId } });
 
             if (!apartamentoExisting) {
                 throw new Error('Apartamento não encontrado no banco de dados.');
             }
+
+            const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+            const clientId = userLoggedIn.clientId;
 
             const clientExisting = await prismaClient.cliente.findFirst({ where: { id: clientId } });
 
@@ -270,7 +274,7 @@ class ContratoService {
 
                 await prisma.contrato.update({
                     where: { id: contractExisting.id },
-                    data: { 
+                    data: {
                         statusContrato: StatusContrato.ATIVO,
                         periodicidadeReajuste: periocidade
                     }
