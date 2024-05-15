@@ -22,7 +22,11 @@ class ApartamentoService {
     }
 
     async getApartamentos() {
-        const apartamentos = await prismaClient.apartamento.findMany();
+        const apartamentos = await prismaClient.apartamento.findMany({
+            orderBy:{
+                numero: "asc"
+            }
+        });
         return apartamentos;
     }
 

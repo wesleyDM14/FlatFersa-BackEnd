@@ -2,7 +2,6 @@ import PDFDocument from 'pdfkit';
 import { addMonths, format } from 'date-fns';
 
 import prismaClient from '../prisma';
-import { Request, Response } from 'express';
 
 export async function gerarContratoPDF(contratoId: string, userId: string, dataCallback: any, endCallback: any) {
 
@@ -127,8 +126,9 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         const dateTextWidth = doc.widthOfString(dateText);
         const centerX = (doc.page.width - dateTextWidth) / 2;
         doc.text(dateText, centerX);
-
+        
         doc.end();
+        
     } catch (error) {
         console.error('Erro ao gerar PDF do contrato: ' + error.message);
         throw new Error('Erro ao gerar PDF do contrato: ' + error.message);

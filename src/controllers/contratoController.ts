@@ -47,6 +47,21 @@ class ContratoController {
         }
     }
 
+    async getContratosWithInfos(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Apenas administradores podem acessar todos os contratos.' });
+            }
+
+            const contratos = await contratoService.getAllContratosWithinfos();
+
+            res.json(contratos);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao obter todos os contratos.' });
+        }
+    }
+
     async getContratoById(req: Request, res: Response) {
         try {
             const contratoId = req.params.contratoId;
@@ -128,16 +143,16 @@ class ContratoController {
             }
 
             const stream = res.writeHead(200, {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "attachment; filename=contrato.pdf",
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'attachment; filename=contrato.pdf',
             });
 
-            await gerarContratoPDF(contratoId, req.user.id,
-                (data) => stream.write(data),
+            await gerarContratoPDF(
+                contratoId,
+                req.user.id,
+                (data: any) => stream.write(data),
                 () => stream.end()
             );
-
-            res.send('invoice');
 
         } catch (error) {
             console.error(error);

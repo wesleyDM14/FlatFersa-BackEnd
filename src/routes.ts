@@ -54,6 +54,7 @@ router.post('/contratos', authenticateUser, isAdmin, contratoController.createCo
 router.post('/contratos/solicitar', authenticateUser, contratoController.solicitarContrato.bind(contratoController));
 router.post('/contratos/aprovar', authenticateUser, isAdmin, contratoController.aprovarContrato.bind(contratoController));
 router.get('/contratos', authenticateUser, isAdmin, contratoController.getContratos.bind(contratoController));
+router.get('/contratos-infos', authenticateUser, isAdmin, contratoController.getContratosWithInfos.bind(contratoController));
 router.get('/contratos-cliente', authenticateUser, contratoController.getContratosByUserLoggedIn.bind(contratoController));
 router.get('/contratos/:contratoId', authenticateUser, contratoController.getContratoById.bind(contratoController));
 router.get('/contratos/download/:contratoId', authenticateUser, contratoController.downloadContratoById.bind(contratoController));

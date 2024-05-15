@@ -109,6 +109,21 @@ class ContratoService {
         return contratos;
     }
 
+    async getAllContratosWithinfos(){
+        const contratos = await prismaClient.contrato.findMany();
+        const response = [];
+
+        for (let index = 0; index < contratos.length; index++) {
+            const element = contratos[index];
+            const currentClient = await prismaClient.cliente.findFirst({ where: { id: element.clientId } });
+            const currentApt = await prismaClient.apartamento.findFirst({ where: { numeroContrato: element.aptId } });
+            let aux = { contrato: element, cliente: currentClient, apartamento: currentApt };
+            response.push(aux);
+        }
+
+        return response;
+    }
+
     async getContratoById(contratoId: string, userId: string, isAdmin: boolean) {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
