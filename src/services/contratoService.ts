@@ -109,7 +109,7 @@ class ContratoService {
         return contratos;
     }
 
-    async getAllContratosWithinfos(){
+    async getAllContratosWithinfos() {
         const contratos = await prismaClient.contrato.findMany();
         const response = [];
 
@@ -150,7 +150,16 @@ class ContratoService {
 
         const contracts = await prismaClient.contrato.findMany({ where: { clientId: clientAlreadyExisting.id } });
 
-        return contracts;
+        const response = [];
+
+        for (let index = 0; index < contracts.length; index++) {
+            const element = contracts[index];
+            const currentApt = await prismaClient.apartamento.findFirst({ where: { numeroContrato: element.aptId } });
+            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt };
+            response.push(aux);
+        }
+
+        return response;
     }
 
     async updateContrato(contratoId: string, novoStatus: StatusContrato) {
