@@ -11,13 +11,24 @@ class ClienteController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar clientes.' });
             }
 
-            const { name, cpf, rg, dateBirth, phone, address, documentoFrente, documentoVerso, email } = req.body;
+            const { documentFront, documentBack } = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const { name, cpf, rg, dateBirth, phone, address, email } = req.body;
 
             if (!name || !cpf || !rg || !dateBirth || !phone || !email) {
                 return res.status(400).json({ message: 'Dados faltando para criação de cliente.' });
             }
 
-            const newClient = await clienteService.createClient(name, cpf, rg, dateBirth, phone, address, documentoFrente, documentoVerso, email);
+            let newClient = undefined;
+
+            if (!documentBack && !documentFront) {
+                newClient = await clienteService.createClient(name, cpf, rg, dateBirth, phone, address, undefined, undefined, email);
+            } else {
+                newClient = await clienteService.createClient(name, cpf, rg, dateBirth, phone, address, documentFront[0], documentBack[0], email);
+            }
+
+
+
+
             res.status(201).json(newClient);
         } catch (error) {
             console.error(error);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { authenticateUser, isAdmin } from './middlewares/authMiddleware';
+import uploadFieldsClient from './middlewares/uploadClientMiddleware.ts';
 import { AuthController } from './controllers/authController';
 
 import UserController from './controllers/userController';
@@ -43,7 +44,7 @@ router.put('/users/:userId', authenticateUser, userController.updateUser.bind(us
 router.delete('/users/:userId', authenticateUser, isAdmin, userController.deleteUserById.bind(userController));
 
 //CRUD para CLIENTE
-router.post('/clients', authenticateUser, isAdmin, clienteController.createClient.bind(clienteController));
+router.post('/clients', authenticateUser, isAdmin, uploadFieldsClient, clienteController.createClient.bind(clienteController));
 router.get('/clients', authenticateUser, isAdmin, clienteController.getAllClients.bind(clienteController));
 router.get('/clients/:clientId', authenticateUser, clienteController.getClientById.bind(clienteController));
 router.put('/clients/:clientId', authenticateUser, clienteController.updateClient.bind(clienteController));

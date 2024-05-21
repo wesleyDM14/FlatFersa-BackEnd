@@ -1,6 +1,10 @@
 import prismaClient from "../prisma";
+import axios from 'axios';
+import fs from 'fs';
 import UserService from "./userService";
 import { hash } from "bcryptjs";
+
+import getToken from "./getToken";
 
 class ClienteService {
 
@@ -10,7 +14,7 @@ class ClienteService {
         this.userService = new UserService();
     }
 
-    async createClient(name: string, cpf: string, rg: string, dateBirth: Date, phone: string, address: string, documentoFrente: string, documentoVerso: string, email: string) {
+    async createClient(name: string, cpf: string, rg: string, dateBirth: Date, phone: string, address: string, documentoFrente: Express.Multer.File, documentoVerso: Express.Multer.File, email: string) {
         try {
             const existingClient = await prismaClient.cliente.findFirst({
                 where: {
@@ -41,6 +45,48 @@ class ClienteService {
 
             const passwordHash = await hash(cpf, 8);
 
+            const uploadedFiles = [];
+
+            if (documentoFrente && documentoVerso) {
+                const token = await getToken();
+
+                try {
+                    //upload document
+                    const responseFront = await axios.post(
+                        `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
+                        fs.createReadStream(documentoFrente.path),
+                        {
+                            headers: {
+                                'Content-Disposition': `attachment; filename="${documentoFrente.originalname}"`,
+                                'Content-Type': documentoFrente.mimetype,
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                    fs.unlinkSync(documentoFrente.path);
+                    uploadedFiles.push(responseFront.data.source_url);
+
+                    const responseBack = await axios.post(
+                        `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
+                        fs.createReadStream(documentoVerso.path),
+                        {
+                            headers: {
+                                'Content-Disposition': `attachment; filename="${documentoVerso.originalname}"`,
+                                'Content-Type': documentoVerso.mimetype,
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                    fs.unlinkSync(documentoVerso.path);
+                    uploadedFiles.push(responseBack.data.source_url);
+
+                } catch (err) {
+                    throw new Error('Error uploading files to WordPress. ' + err.message);
+                }
+            }
+
             try {
                 await prismaClient.$transaction(async (prisma) => {
                     const newClient = await prisma.cliente.create({
@@ -51,8 +97,8 @@ class ClienteService {
                             dateBirth: dateBirth,
                             phone: phone,
                             address: address,
-                            documentoFrente: documentoFrente,
-                            documentoVerso: documentoVerso
+                            documentoFrente: uploadedFiles[0],
+                            documentoVerso: uploadedFiles[1]
                         }
                     });
 
