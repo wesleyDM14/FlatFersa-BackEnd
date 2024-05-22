@@ -32,6 +32,7 @@ router.delete('/predios/:predioId', authenticateUser, isAdmin, predioController.
 //CRUD para APARTAMENTO
 router.post('/apartamentos', authenticateUser, isAdmin, apartamentoController.createApartamento.bind(apartamentoController));
 router.get('/apartamentos', authenticateUser, apartamentoController.getApartamentos.bind(apartamentoController));
+router.get('/apartamentos-infos', authenticateUser, isAdmin, apartamentoController.getApartamentosWithInofs.bind(apartamentoController));
 router.get('/apartamentos/:apartamentoId', authenticateUser, apartamentoController.getApartamentoById.bind(apartamentoController));
 router.put('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartamentoController.updateApartamento.bind(apartamentoController));
 router.delete('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartamentoController.deleteApartamento.bind(apartamentoController));

@@ -3,9 +3,10 @@ import 'express-async-errors';
 import cors from 'cors';
 
 import { router } from "./routes";
-import { verificaPrestacoesEmAtraso, aplicarMulta } from "./services/verificaPrestacaoService";
-import { verificaApartamentoStatus } from "./services/verificaApartamento";
-import { verificaContratos } from "./services/verificaContratos";
+import { verificaPrestacoesEmAtraso, aplicarMulta } from "./functions/verificaPrestacaoService";
+import { verificaApartamentoStatus } from "./functions/verificaApartamento";
+import { verificaContratos } from "./functions/verificaContratos";
+import { clearDirectory } from "./functions/clearUploadsFolder";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -34,6 +35,7 @@ verificaContratos();
 verificaPrestacoesEmAtraso();
 aplicarMulta();
 verificaApartamentoStatus();
+clearDirectory();
 
 //Inicia o servidor
 app.listen(PORT, () => {

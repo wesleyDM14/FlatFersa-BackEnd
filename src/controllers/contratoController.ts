@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import ContratoService from "../services/contratoService";
 import { StatusContrato } from "@prisma/client";
-import { gerarContratoPDF } from "../services/gerarContratoPDF";
+import { gerarContratoPDF } from "../functions/gerarContratoPDF";
 
 const contratoService = new ContratoService();
 

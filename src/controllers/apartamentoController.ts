@@ -35,6 +35,16 @@ class ApartamentoController {
         }
     }
 
+    async getApartamentosWithInofs(req: Request, res: Response) {
+        try {
+            const apartamentos = await apartamentoService.getApartamentosWithInfo();
+            return res.json(apartamentos);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
     async getApartamentoById(req: Request, res: Response) {
         try {
             const apartamentoId = req.params.apartamentoId;
@@ -72,7 +82,7 @@ class ApartamentoController {
             }
 
             await apartamentoService.updateApartamento(apartamentoId, climatizado, valorBase);
-            
+
             return res.json({ message: 'Apartamento atualizado com sucesso.' });
 
         } catch (error) {

@@ -4,7 +4,7 @@ import fs from 'fs';
 import UserService from "./userService";
 import { hash } from "bcryptjs";
 
-import getToken from "./getToken";
+import getToken from "../functions/getToken";
 
 class ClienteService {
 
@@ -183,7 +183,16 @@ class ClienteService {
             throw new Error('Cliente não encontrado.');
         }
 
-        await prismaClient.cliente.delete({ where: { id: clientId } });
+        const existingUser = await prismaClient.user.findFirst({ where: { clientId: clientId } });
+
+        try {
+            await prismaClient.$transaction(async (prisma) => {
+                await prisma.cliente.delete({ where: { id: clientId } });
+                await prisma.user.delete({ where: { id: existingUser.id } });
+            });
+        } catch (error) {
+            throw new Error('Erro ao excluir cliente e usuário: ' + error.message);
+        }
     }
 }
 
