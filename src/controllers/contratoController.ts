@@ -187,19 +187,39 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem aprovar novos contratos.' });
             }
 
-            const contratoId = req.params.contratoId;
-            const { valorAluguel, periocidade } = req.body;
+            const { contratoId, valorAluguel, periocidade, limiteKwh } = req.body;
 
             if (!contratoId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            if (!valorAluguel || !periocidade) {
+            if (!valorAluguel || !periocidade || !limiteKwh) {
                 return res.status(400).json({ message: 'Informe os dados do contrato corretamente.' });
             }
 
-            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel, periocidade);
+            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel, periocidade, limiteKwh);
             res.status(200).json(newContrato);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
+        }
+    }
+
+    async reprovarContrato(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Apenas administradores porem reprovar contratos.' });
+            }
+
+            const contratoId = req.params.contratoId;
+
+            if (!contratoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            await contratoService.reprovarContrato(contratoId);
+            res.status(200).json({ message: 'Reprovado com sucesso.' });
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Erro ao aprovar contrato.' });

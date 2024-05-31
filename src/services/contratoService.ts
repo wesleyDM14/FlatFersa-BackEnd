@@ -1,16 +1,9 @@
 import { addMonths } from "date-fns";
 
 import prismaClient from "../prisma";
-import PrestacaoService from "./prestacaoService";
-import { PeriodicidadeContrato, StatusContrato, TipoPagamento } from "@prisma/client";
+import { PeriodicidadeContrato, StatusApartamento, StatusContrato, TipoPagamento } from "@prisma/client";
 
 class ContratoService {
-
-    private prestacaoService: PrestacaoService;
-
-    constructor() {
-        this.prestacaoService = new PrestacaoService();
-    }
 
     async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato) {
         try {
@@ -70,19 +63,22 @@ class ContratoService {
                     let parcelas = [];
 
                     for (let index = 0; index <= duracaoContrato; index++) {
-                        dataVencimento = addMonths(dataVencimento, index);
+                        let dataAux = dataVencimento;
+                        dataAux = addMonths(dataVencimento, index);
                         let mesReferencia = dataVencimento.getMonth() + 1;
                         let tipoPagamento = null;
                         if (index === 0) {
                             tipoPagamento = TipoPagamento.CALCAO;
                             mesReferencia = 0;
+                            let dataCalcao = new Date(dataInicio);
+                            dataAux.setDate(dataCalcao.getDate() + 3);
                         } else {
                             tipoPagamento = TipoPagamento.ALUGUEL;
                         }
                         let aux = await prisma.prestacaoAluguel.create({
                             data: {
                                 contractId: newContrato.id,
-                                dataVencimento: dataVencimento,
+                                dataVencimento: dataAux,
                                 valor: valorAluguel,
                                 mesReferencia: mesReferencia,
                                 tipo: tipoPagamento
@@ -90,6 +86,13 @@ class ContratoService {
                         });
                         parcelas.push(aux);
                     }
+
+                    await prisma.apartamento.update({
+                        where: { numeroContrato: aptId },
+                        data: {
+                            status: StatusApartamento.OCUPADO
+                        }
+                    });
 
                     return { contrato: newContrato, prestacoes: parcelas };
                 });
@@ -216,15 +219,25 @@ class ContratoService {
                     ],
                     AND: [
                         {
-                            statusContrato: StatusContrato.ATIVO
-                        }
+                            OR: [
+                                {
+                                    statusContrato: StatusContrato.ATIVO
+                                },
+                                {
+                                    statusContrato: StatusContrato.AGUARDANDO
+                                }
+                            ]
+                        },
+
                     ]
                 }
             });
 
             if (contratoAtivo) {
-                throw new Error('Cliente com contrato ativo ou apartamento com contrato ativo.');
+                throw new Error('Cliente com contrato ativo/aguardando ou apartamento com contrato ativo.');
             }
+
+
 
             const newContrato = await prismaClient.contrato.create({
                 data: {
@@ -236,6 +249,11 @@ class ContratoService {
                     clientId: clientId,
                     statusContrato: StatusContrato.AGUARDANDO
                 }
+            });
+
+            await prismaClient.apartamento.update({
+                where: { numeroContrato: aptId },
+                data: { status: StatusApartamento.AGUARDANDO }
             });
 
             const usersAdmin = await prismaClient.user.findMany({ where: { isAdmin: true } });
@@ -253,13 +271,14 @@ class ContratoService {
             );
 
             return newContrato;
+
         } catch (error) {
             console.error(error);
             throw new Error('Erro interno do servidor: ' + error.message);
         }
     }
 
-    async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato) {
+    async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato, limiteKwh: number) {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractExisting) {
@@ -275,19 +294,22 @@ class ContratoService {
                 let parcelas = [];
 
                 for (let index = 0; index <= contractExisting.duracaoContrato; index++) {
-                    dataVencimento = addMonths(dataVencimento, index);
+                    let dataAux = dataVencimento;
+                    dataAux = addMonths(dataVencimento, index);
                     let mesReferencia = dataVencimento.getMonth() + 1;
                     let tipoPagamento = null;
                     if (index === 0) {
                         tipoPagamento = TipoPagamento.CALCAO;
                         mesReferencia = 0;
+                        let dataCalcao = new Date(contractExisting.dataInicio);
+                        dataAux.setDate(dataCalcao.getDate() + 3);
                     } else {
                         tipoPagamento = TipoPagamento.ALUGUEL;
                     }
                     let aux = await prisma.prestacaoAluguel.create({
                         data: {
                             contractId: contractExisting.id,
-                            dataVencimento: dataVencimento,
+                            dataVencimento: dataAux,
                             valor: valorAluguel,
                             mesReferencia: mesReferencia,
                             tipo: tipoPagamento
@@ -300,7 +322,16 @@ class ContratoService {
                     where: { id: contractExisting.id },
                     data: {
                         statusContrato: StatusContrato.ATIVO,
-                        periodicidadeReajuste: periocidade
+                        periodicidadeReajuste: periocidade,
+                        valorAluguel: valorAluguel,
+                        limiteKwh: limiteKwh
+                    }
+                });
+
+                await prisma.apartamento.update({
+                    where: { numeroContrato: contractExisting.aptId },
+                    data: {
+                        status: StatusApartamento.OCUPADO
                     }
                 });
 
@@ -310,11 +341,50 @@ class ContratoService {
                     data: {
                         userId: clientUser.id,
                         title: 'Resposta Sobre Contrato',
-                        content: `Sua solicitação de contrato foi aprovada, verifique na seção de contratos para poder visualiza-lo.`,
+                        content: `Sua solicitação de contrato foi aprovada, verifique na seção de contratos para poder assiná-lo e assim dar início a sua estadia.`,
                     }
                 });
 
                 return { contrato: contractExisting, prestacoes: parcelas };
+            });
+        } catch (error) {
+            throw new Error('Erro ao cadastrar contrato: ' + error.message);
+        }
+    }
+
+    async reprovarContrato(contratoId: string) {
+        const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+
+        if (!contractExisting) {
+            throw new Error('Contrato não encontrado no Banco de Dados.');
+        }
+
+        try {
+            await prismaClient.$transaction(async (prisma) => {
+
+                await prisma.contrato.update({
+                    where: { id: contractExisting.id },
+                    data: {
+                        statusContrato: StatusContrato.CANCELADO,
+                    }
+                });
+
+                await prisma.apartamento.update({
+                    where: { numeroContrato: contractExisting.aptId },
+                    data: { status: StatusApartamento.VAGO }
+                });
+
+                const clientUser = await prismaClient.user.findFirst({ where: { clientId: contractExisting.clientId } });
+
+                await prismaClient.avisos.create({
+                    data: {
+                        userId: clientUser.id,
+                        title: 'Resposta Sobre Contrato',
+                        content: `Sua solicitação de contrato foi reprovada. Por favor, entre em contato para mais detalhes.`,
+                    }
+                });
+
+                return;
             });
         } catch (error) {
             throw new Error('Erro ao cadastrar contrato: ' + error.message);
