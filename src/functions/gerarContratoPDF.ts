@@ -104,6 +104,31 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         doc.fillColor('black').font('Times-Roman').fontSize(12).text('Caso o LOCATÁRIO realize festas ou qualquer outra atividade que inclui a presença de várias pessoas no imóvel, ele deve responsabilizar-se em NÃO atrapalhar os demais flats visinhos, e manterá ordem e a paz no ambiente.', { align: 'justify' });
         doc.fillColor('red').text('PARÁGRAFO PRIMEIRO ', { continued: true });
         doc.fillColor('black').font('Times-Roman').fontSize(12).text('- No descumprimento desta cláusula o LOCATÁRIO pagará multa de 30%.', { align: 'justify' });
+        doc.moveDown();
+        doc.fillColor('red').text('CLÁUSULA DÉCIMA PRIMEIRA');
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text('Sobre o fornecimento e o uso de Energia Elétrica.', { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO PRIMEIRO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O LOCADOR fornecerá ao LOCATÁRIO uma franquia de consumo de energia elétrica de até ${contractExisting.limiteKwh} kWh por mês, sem custo adicional.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO SEGUNDO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- Caso o consumo mensal de energia elétrica do LOCATÁRIO seja inferior ao limite estabelecido de ${contractExisting.limiteKwh} kWh, o saldo não utilizado será acumulado como crédito para os meses subsequentes, sendo cancelados ao fim do contrato vigente.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO TERCEIRO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- Se o consumo mensal de energia elétrica do LOCATÁRIO exceder o limite de ${contractExisting.limiteKwh} kWh e não houver créditos acumulados suficientes para cobrir o excesso, o LOCATÁRIO será responsável pelo pagamento do consumo excedente.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO QUARTO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O valor a ser pago pelo LOCATÁRIO será calculado com base na tarifa de energia elétrica vigente, fornecida pela concessionária local, multiplicando pela quantidade de kWh excedentes.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO QUINTO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O consumo mensal de energia elétrica será medido por meio de um medidor de energia instalado no imóvel locado.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO SEXTO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O LOCADOR informará mensalmente ao LOCATÁRIO sobre o consumo registrado, os créditos acumulados (se houver) e os valores devidos pelos kWh excedentes.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO SETIMO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O pagamento dos valores devidos pelo consumo excedente deverá ser efetuado juntamente com o pagamento do aluguel mensal.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO OITAVO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O LOCADOR será responsável pela manutenção do medidor de energia elétrica.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO NONO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O LOCATÁRIO deverá permitir o acesos do LOCADOR ou de seus representantes para leitura e verificação do medidor de energia elétrica, mediante aviso prévio.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO DÉCIMO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O LOCATÁRIO compromete-se a utilizar a energia elétrica de forma racional e econômica, evitando desperdícios.`, { align: 'justify' });
+        doc.fillColor('red').text('PARÁGRAFO DÉCIMO PRIMEIRO ', { continued: true });
+        doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O não pagamento dos valores devidos pelo consumo excedente poderá acarretar na suspensão do fornecimento de energia elétrica e/ou na rescisão do contrato de locação, conforme previsto nas demais cláusulas deste contrato.`, { align: 'justify' });
 
         doc.moveDown();
         doc.moveDown();
@@ -126,9 +151,9 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         const dateTextWidth = doc.widthOfString(dateText);
         const centerX = (doc.page.width - dateTextWidth) / 2;
         doc.text(dateText, centerX);
-        
+
         doc.end();
-        
+
     } catch (error) {
         console.error('Erro ao gerar PDF do contrato: ' + error.message);
         throw new Error('Erro ao gerar PDF do contrato: ' + error.message);

@@ -1,5 +1,4 @@
 import { StatusPagamento } from "@prisma/client";
-import { CronJob } from "cron";
 
 import prismaClient from "../prisma";
 
