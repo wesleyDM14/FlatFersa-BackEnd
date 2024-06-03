@@ -26,7 +26,7 @@ router.post('/login', AuthController.login);
 router.post('/predios', authenticateUser, isAdmin, predioController.createPredio.bind(predioController));
 router.get('/predios', authenticateUser, isAdmin, predioController.getPredios.bind(predioController));
 router.get('/predios/:predioId', authenticateUser, isAdmin, predioController.getPredioById.bind(predioController));
-router.put('/predios/:predioId', authenticateUser, isAdmin, predioController.getPredioById.bind(predioController));
+router.put('/predios/:predioId', authenticateUser, isAdmin, predioController.updatePredio.bind(predioController));
 router.delete('/predios/:predioId', authenticateUser, isAdmin, predioController.deletePredio.bind(predioController));
 
 //CRUD para APARTAMENTO

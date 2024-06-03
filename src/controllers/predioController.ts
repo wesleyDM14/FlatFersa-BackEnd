@@ -14,7 +14,7 @@ class PredioController {
             if (!nome) {
                 return res.status(400).json({ message: 'Nome é obrogatório.' });
             }
-            
+
             if (!endereco || !bairro || !cidade || !estado || !kwhPrice) {
                 return res.status(400).json({ message: 'Dados obrogatórios não informados.' });
             }
@@ -63,6 +63,7 @@ class PredioController {
     async updatePredio(req: Request, res: Response) {
         try {
             const predioId = req.params.predioId;
+
             const { endereco, bairro, cidade, estado, numApt, kwhPrice } = req.body;
 
             if (!predioId) {

@@ -17,7 +17,7 @@ model Predio {
   cidade    String
   estado    String
   numApt    Int
-  kwhPrice  Float @default(0.7)
+  kwhPrice  Float    @default(0.7)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -55,6 +55,7 @@ model Contrato {
   dataInicio             DateTime
   statusContrato         StatusContrato
   limiteKwh              Float? //Limite de consumo para gratuidade da conta de energia
+  saldoKwh               Float                 @default(0) //Banco de kWh
   periodicidadeReajuste  PeriodicidadeContrato @default(ANUALMENTE)
   linkPdfAssinado        String?
   createdAt              DateTime              @default(now())
@@ -88,6 +89,7 @@ model PrestacaoAluguel {
   valorExcedenteKWh Float? //Valor do excedente de KWh a ser cobrado
   multa             Float?          @default(0)
   tipo              TipoPagamento   @default(ALUGUEL)
+  linkComprovante   String?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
