@@ -72,9 +72,9 @@ class PrestacaoService {
 
     async getPrestacaoByUserId(userId: string) {
         const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
-        
+
         const clientAlreadyExisting = await prismaClient.cliente.findFirst({ where: { id: userLoggedIn.clientId } });
-        
+
         if (!clientAlreadyExisting) {
             throw new Error('Cliente não encontrado no Banco de Dados.');
         }
@@ -99,32 +99,67 @@ class PrestacaoService {
     }
 
     async updatePrestacao(prestacaoId: string, consumoKWh: number) {
-        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+        try {
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
 
-        if (!prestacaoExisting) {
-            throw new Error('Prestação de aluguel não encontrada no banco de dados.');
-        }
-
-        const contratoByPrestacao = await prismaClient.contrato.findFirst({ where: { id: prestacaoExisting.contractId } });
-
-        const tarifaCosern = 0.67257;
-        let valorAdicional = 0;
-
-        const valorExcedenteKWh = consumoKWh - contratoByPrestacao.limiteKwh;
-
-        if (valorExcedenteKWh > 0) {
-            valorAdicional = valorExcedenteKWh * tarifaCosern;
-        }
-
-        await prismaClient.prestacaoAluguel.update({
-            where: {
-                id: prestacaoId
-            },
-            data: {
-                valorExcedenteKWh: valorAdicional,
-                consumoKWh: consumoKWh
+            if (!prestacaoExisting) {
+                throw new Error('Prestação de aluguel não encontrada no banco de dados.');
             }
-        });
+
+            const contratoByPrestacao = await prismaClient.contrato.findFirst({ where: { id: prestacaoExisting.contractId } });
+
+            const apartamentoContract = await prismaClient.apartamento.findFirst({ where: { numeroContrato: contratoByPrestacao.aptId } });
+
+            const predioApt = await prismaClient.predio.findFirst({ where: { id: apartamentoContract.id_predio } });
+
+            //logica do banco de kWh
+
+            let consumoTotal = consumoKWh;
+            let valorAdicional = 0;
+            let excesso = 0;
+
+            //verifica se o consumo está dentro do limite mensal
+            if (consumoTotal <= contratoByPrestacao.limiteKwh) {
+                //acumula creditos não utilizados
+                let creditoAcumulado = contratoByPrestacao.limiteKwh - consumoTotal;
+                await prismaClient.contrato.update({
+                    where: { id: contratoByPrestacao.id },
+                    data: { saldoKwh: contratoByPrestacao.saldoKwh + creditoAcumulado }
+                });
+            } else {
+                //Calcula o excesso sem considerar créditos
+                excesso = consumoTotal - contratoByPrestacao.limiteKwh;
+
+                //verifica se há créditos acumulados suficientes para cobrir o excesso
+                if (excesso <= contratoByPrestacao.saldoKwh) {
+                    //Usa os créditos acumulados para cobrir o excesso
+                    await prismaClient.contrato.update({
+                        where: { id: contratoByPrestacao.id },
+                        data: { saldoKwh: contratoByPrestacao.saldoKwh - excesso }
+                    });
+                } else {
+                    excesso -= contratoByPrestacao.saldoKwh;
+                    await prismaClient.contrato.update({
+                        where: { id: contratoByPrestacao.id },
+                        data: { saldoKwh: 0 }
+                    });
+
+                    valorAdicional = excesso * predioApt.kwhPrice;
+                }
+            }
+
+            await prismaClient.prestacaoAluguel.update({
+                where: { id: prestacaoExisting.id },
+                data: {
+                    consumoKWh: consumoKWh,
+                    valorExcedenteKWh: valorAdicional
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            throw new Error('Erro ao atualizar prestação');
+        }
     }
 
     async registrarPagamento(prestacaoId: string) {
