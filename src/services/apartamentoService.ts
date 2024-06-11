@@ -2,18 +2,34 @@ import prismaClient from "../prisma";
 
 class ApartamentoService {
 
-    async createApartamento(numeroContrato: string, numero: number, valorBase: number, climatizado: boolean, predioId: string) {
+    async createApartamento(numero: number, valorBase: number, climatizado: boolean, predioId: string) {
         try {
 
-            const existingApartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: numeroContrato } });
+            const currentPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
-            if (existingApartamento) {
-                throw new Error('Numero de contrato já cadastrado.');
+            if (!currentPredio) {
+                throw new Error('ID de prédio não encontrado no Sistema.');
+            }
+
+            const apartamentoWithNumberExisting = await prismaClient.apartamento.findFirst({
+                where: {
+                    AND: [
+                        {
+                            id_predio: predioId
+                        },
+                        {
+                            numero: numero
+                        }
+                    ]
+                }
+            });
+
+            if (apartamentoWithNumberExisting) {
+                throw new Error('Número de Apartamento já cadastrado neste prédio.');
             }
 
             const newApartamento = await prismaClient.apartamento.create({
                 data: {
-                    numeroContrato: numeroContrato,
                     numero: numero,
                     valorBase: valorBase,
                     climatizado: climatizado,
@@ -55,7 +71,7 @@ class ApartamentoService {
     }
 
     async getApartamentoById(apartamentoId: string) {
-        const apartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: apartamentoId } });
+        const apartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoId } });
 
         if (!apartamento) {
             throw new Error('Apartamento não encontrado.');
@@ -65,7 +81,7 @@ class ApartamentoService {
     }
 
     async updateApartamento(apartamentoId: string, climatizado: boolean, valorBase: number) {
-        const existingApartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: apartamentoId } });
+        const existingApartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoId } });
 
         if (!existingApartamento) {
             throw new Error('Apartamento não encontrado.');
@@ -73,7 +89,7 @@ class ApartamentoService {
 
         await prismaClient.apartamento.update({
             where: {
-                numeroContrato: apartamentoId
+                id: apartamentoId
             },
             data: {
                 climatizado: climatizado,
@@ -83,13 +99,13 @@ class ApartamentoService {
     }
 
     async deleteApartamento(apartamentoID: string) {
-        const existingApartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: apartamentoID } });
+        const existingApartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoID } });
 
         if (!existingApartamento) {
             throw new Error('Apartamento não encontrado.');
         }
 
-        await prismaClient.apartamento.delete({ where: { numeroContrato: apartamentoID } });
+        await prismaClient.apartamento.delete({ where: { id: apartamentoID } });
     }
 }
 

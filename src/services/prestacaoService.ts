@@ -1,6 +1,7 @@
 import { StatusPagamento } from "@prisma/client";
 
 import prismaClient from "../prisma";
+import { generateQrCodePix } from "../functions/generatePix";
 
 class PrestacaoService {
 
@@ -107,7 +108,7 @@ class PrestacaoService {
 
             const contratoByPrestacao = await prismaClient.contrato.findFirst({ where: { id: prestacaoExisting.contractId } });
 
-            const apartamentoContract = await prismaClient.apartamento.findFirst({ where: { numeroContrato: contratoByPrestacao.aptId } });
+            const apartamentoContract = await prismaClient.apartamento.findFirst({ where: { id: contratoByPrestacao.aptId } });
 
             const predioApt = await prismaClient.predio.findFirst({ where: { id: apartamentoContract.id_predio } });
 
@@ -215,6 +216,34 @@ class PrestacaoService {
         }
 
         await prismaClient.prestacaoAluguel.delete({ where: { id: prestacaoId } });
+    }
+
+    async generateQrCodePixPagamento(prestacaoId: string) {
+        try {
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+            if (!prestacaoExisting) {
+                throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+            }
+
+            if (prestacaoExisting.statusPagamento === StatusPagamento.PAGO || prestacaoExisting.statusPagamento === StatusPagamento.CANCELADO) {
+                throw new Error('Prestação já se encontra fechada no sistema.');
+            }
+
+            let dataPagamento = {
+                version: '01',
+                key: '+5584999381079',
+                name: 'FLATFERSA',
+                city: 'Angicos',
+                value: prestacaoExisting.valor
+            }
+
+            const response = await generateQrCodePix(dataPagamento);
+
+            return response;
+        } catch (error) {
+            throw new Error('Erro ao gerar QrCodePix: ' + error.message);
+        }
     }
 }
 

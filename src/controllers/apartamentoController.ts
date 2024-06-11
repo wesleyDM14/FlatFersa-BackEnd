@@ -11,13 +11,13 @@ class ApartamentoController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar apartamentos.' });
             }
 
-            const { numeroContrato, numero, valorBase, climatizado, predioId } = req.body;
+            const { numero, valorBase, climatizado, predioId } = req.body;
 
-            if (!numeroContrato || !numero || !valorBase || !predioId) {
+            if (!numero || !valorBase || !predioId) {
                 return res.status(400).json({ message: 'As informações de Apartamento são obrigatórias.' });
             }
 
-            const newApartamento = await apartamentoService.createApartamento(numeroContrato, numero, valorBase, climatizado, predioId);
+            const newApartamento = await apartamentoService.createApartamento(numero, valorBase, climatizado, predioId);
             res.status(201).json(newApartamento);
         } catch (error) {
             console.error(error);

@@ -26,9 +26,6 @@ class ClienteController {
                 newClient = await clienteService.createClient(name, cpf, rg, dateBirth, phone, address, documentFront[0], documentBack[0], email);
             }
 
-
-
-
             res.status(201).json(newClient);
         } catch (error) {
             console.error(error);
@@ -65,6 +62,7 @@ class ClienteController {
         }
     }
 
+    //Atualizar fotos?
     async updateClient(req: Request, res: Response) {
         try {
             //Extrair o ID do usuário a ser obtido a partir dos parâmetros da solicitação

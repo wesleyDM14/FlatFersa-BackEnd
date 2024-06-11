@@ -27,13 +27,13 @@ model Predio {
 
 //Definicao da tabela Apartamento
 model Apartamento {
-  numeroContrato String            @id
-  numero         Int
-  valorBase      Float
-  climatizado    Boolean
-  status         StatusApartamento @default(VAGO)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id          String            @id @default(uuid())
+  numero      Int
+  valorBase   Float
+  climatizado Boolean
+  status      StatusApartamento @default(VAGO)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   // Relacionamento com a tabela Predio
   id_predio String
@@ -63,7 +63,7 @@ model Contrato {
 
   //Relacionamento com a Tabela Apartamento
   aptId String      @unique
-  apt   Apartamento @relation(fields: [aptId], references: [numeroContrato])
+  apt   Apartamento @relation(fields: [aptId], references: [id])
 
   //Relacionamento com a Tabela Cliente
   clientId String  @unique
@@ -154,7 +154,7 @@ model HistoricoLocatarios {
   clienteID String
 
   //Relacionamento com a tabela de Apartamento
-  apartamento Apartamento @relation(fields: [aptID], references: [numeroContrato])
+  apartamento Apartamento @relation(fields: [aptID], references: [id])
   aptID       String
 }
 

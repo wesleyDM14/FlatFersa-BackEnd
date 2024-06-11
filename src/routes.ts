@@ -66,6 +66,7 @@ router.delete('/contratos/:contratoId', authenticateUser, isAdmin, contratoContr
 
 //CRUD para PRESTAÇÃO ALUGUEL
 router.post('/aluguel', authenticateUser, isAdmin, prestacaoController.createPrestacao.bind(prestacaoController));
+router.post('/aluguel/generateQrCode', authenticateUser, prestacaoController.generateQrCodePix.bind(prestacaoController));
 router.get('/aluguel', authenticateUser, prestacaoController.getAllPrestacao.bind(prestacaoController));
 router.get('/aluguel/:prestacaoId', authenticateUser, prestacaoController.getPrestacaoById.bind(prestacaoController));
 router.get('/aluguel/contrato/:contratoId', authenticateUser, prestacaoController.getPrestacoesByContratoId.bind(prestacaoController));
@@ -75,5 +76,7 @@ router.put('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoControll
 router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, prestacaoController.registraPagamento.bind(prestacaoController));
 router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));
 router.delete('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.deletePrestacao.bind(prestacaoController));
+
+
 
 export { router };

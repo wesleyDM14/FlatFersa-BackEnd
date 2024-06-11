@@ -160,6 +160,8 @@ class ClienteService {
                 throw new Error('Você não tem permissão para acessar este contrato.');
             }
 
+            //atualizar imagens
+
             //Remove campos nulos dos dados atualizados
             const dadosParaAtualizar = Object.fromEntries(
                 Object.entries(dadosAtualizados).filter(([_, valor]) => valor !== null)

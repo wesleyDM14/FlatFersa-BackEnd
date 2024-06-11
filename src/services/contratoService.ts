@@ -7,7 +7,7 @@ class ContratoService {
 
     async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato) {
         try {
-            const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { numeroContrato: aptId } });
+            const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { id: aptId } });
 
             if (!apartamentoExisting) {
                 throw new Error('Apartamento não encontrado no banco de dados.');
@@ -62,10 +62,10 @@ class ContratoService {
 
                     let parcelas = [];
 
-                    for (let index = 0; index <= duracaoContrato; index++) {
+                    for (let index = 0; index < duracaoContrato; index++) {
                         let dataAux = dataVencimento;
                         dataAux = addMonths(dataVencimento, index);
-                        let mesReferencia = dataVencimento.getMonth() + 1;
+                        let mesReferencia = dataAux.getMonth() + 1;
                         let tipoPagamento = null;
                         if (index === 0) {
                             tipoPagamento = TipoPagamento.CALCAO;
@@ -88,7 +88,7 @@ class ContratoService {
                     }
 
                     await prisma.apartamento.update({
-                        where: { numeroContrato: aptId },
+                        where: { id: aptId },
                         data: {
                             status: StatusApartamento.OCUPADO
                         }
@@ -119,8 +119,9 @@ class ContratoService {
         for (let index = 0; index < contratos.length; index++) {
             const element = contratos[index];
             const currentClient = await prismaClient.cliente.findFirst({ where: { id: element.clientId } });
-            const currentApt = await prismaClient.apartamento.findFirst({ where: { numeroContrato: element.aptId } });
-            let aux = { contrato: element, cliente: currentClient, apartamento: currentApt };
+            const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
+            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
+            let aux = { contrato: element, cliente: currentClient, apartamento: currentApt, financeiro: parcelas };
             response.push(aux);
         }
 
@@ -157,7 +158,7 @@ class ContratoService {
 
         for (let index = 0; index < contracts.length; index++) {
             const element = contracts[index];
-            const currentApt = await prismaClient.apartamento.findFirst({ where: { numeroContrato: element.aptId } });
+            const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
             let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt };
             response.push(aux);
         }
@@ -191,7 +192,7 @@ class ContratoService {
 
     async solicitarContrato(duracaoContrato: number, diaVencimentoAluguel: number, dataInicio: Date, aptId: string, userId: string) {
         try {
-            const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { numeroContrato: aptId } });
+            const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { id: aptId } });
 
             if (!apartamentoExisting) {
                 throw new Error('Apartamento não encontrado no banco de dados.');
@@ -252,7 +253,7 @@ class ContratoService {
             });
 
             await prismaClient.apartamento.update({
-                where: { numeroContrato: aptId },
+                where: { id: aptId },
                 data: { status: StatusApartamento.AGUARDANDO }
             });
 
@@ -329,7 +330,7 @@ class ContratoService {
                 });
 
                 await prisma.apartamento.update({
-                    where: { numeroContrato: contractExisting.aptId },
+                    where: { id: contractExisting.aptId },
                     data: {
                         status: StatusApartamento.OCUPADO
                     }
@@ -370,7 +371,7 @@ class ContratoService {
                 });
 
                 await prisma.apartamento.update({
-                    where: { numeroContrato: contractExisting.aptId },
+                    where: { id: contractExisting.aptId },
                     data: { status: StatusApartamento.VAGO }
                 });
 

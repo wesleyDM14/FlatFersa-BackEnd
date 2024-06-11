@@ -191,6 +191,24 @@ class PrestacaoController {
         }
     }
 
+    async generateQrCodePix(req: Request, res: Response) {
+        try {
+            const { prestacaoId } = req.body;
+
+            if (!prestacaoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const qrCode = await prestacaoService.generateQrCodePixPagamento(prestacaoId);
+
+            return res.status(200).json(qrCode);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao gerar QrCode de pagamento da prestação.' });
+        }
+    }
+
 }
 
 export default PrestacaoController;

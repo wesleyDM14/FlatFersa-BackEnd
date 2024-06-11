@@ -4,7 +4,7 @@ import { sign } from "jsonwebtoken";
 
 //Função para gerar um token de acesso
 export const generateAccessToken = (userID: string): string => {
-    return sign({ id: userID }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    return sign({ id: userID }, process.env.JWT_SECRET /*, { expiresIn: '30d' }*/);
 }
 
 //funcao para autenticar o usuário e gerar um token de acesso
