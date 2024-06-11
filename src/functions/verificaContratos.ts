@@ -37,7 +37,7 @@ async function verificaContratos() {
                             });
 
                             await prisma.apartamento.update({
-                                where: { numeroContrato: contrato.aptId },
+                                where: { id: contrato.aptId },
                                 data: { status: StatusApartamento.VAGO }
                             });
 

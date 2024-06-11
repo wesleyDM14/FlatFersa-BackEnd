@@ -19,7 +19,7 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         }
 
         const cliente = await prismaClient.cliente.findFirst({ where: { id: contractExisting.clientId } });
-        const apartamento = await prismaClient.apartamento.findFirst({ where: { numeroContrato: contractExisting.aptId } });
+        const apartamento = await prismaClient.apartamento.findFirst({ where: { id: contractExisting.aptId } });
         const predio = await prismaClient.predio.findFirst({ where: { id: apartamento.id_predio } });
 
         const doc = new PDFDocument();

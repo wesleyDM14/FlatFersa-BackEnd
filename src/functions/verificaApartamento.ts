@@ -14,7 +14,7 @@ async function verificaApartamentoStatus() {
         await Promise.all(
             contratosAtivos.map(async (contrato) => {
                 await prismaClient.apartamento.update({
-                    where: { numeroContrato: contrato.aptId },
+                    where: { id: contrato.aptId },
                     data: { status: StatusApartamento.OCUPADO }
                 });
             })
