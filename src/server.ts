@@ -7,6 +7,8 @@ import { verificaPrestacoesEmAtraso, aplicarMulta } from "./functions/verificaPr
 import { verificaApartamentoStatus } from "./functions/verificaApartamento";
 import { verificaContratos } from "./functions/verificaContratos";
 import { clearDirectory } from "./functions/clearUploadsFolder";
+import { setupGracefulShutdown } from "./functions/shutdown";
+import prismaClient from "./prisma";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -38,6 +40,9 @@ verificaApartamentoStatus();
 clearDirectory();
 
 //Inicia o servidor
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+//Configura desligamento gracioso
+setupGracefulShutdown(server, prismaClient);
