@@ -10,6 +10,7 @@ import ApartamentoController from './controllers/apartamentoController';
 import ClienteController from './controllers/clienteController';
 import ContratoController from './controllers/contratoController';
 import PrestacaoController from './controllers/prestacaoController';
+import AvisoController from './controllers/avisoController';
 
 const router = Router();
 const userController = new UserController();
@@ -18,6 +19,7 @@ const apartamentoController = new ApartamentoController();
 const clienteController = new ClienteController();
 const contratoController = new ContratoController();
 const prestacaoController = new PrestacaoController();
+const avisoController = new AvisoController();
 
 //rota de autenticação
 router.post('/login', AuthController.login);
@@ -77,6 +79,13 @@ router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, prestacaoControl
 router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));
 router.delete('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.deletePrestacao.bind(prestacaoController));
 
-
+//CRUD para AVISOS
+router.post('/avisos/global', authenticateUser, isAdmin, avisoController.createAvisoGeral.bind(avisoController));
+router.post('/avisos', authenticateUser, isAdmin, avisoController.createAvisoByUserId.bind(avisoController));
+router.get('/avisos', authenticateUser, isAdmin, avisoController.getAvisos.bind(avisoController));
+router.get('/avisos/:userId', authenticateUser, isAdmin, avisoController.getAvisosByUserId.bind(avisoController));
+router.get('/avisos/user/', authenticateUser, avisoController.getAvisosByUserLoggedIn.bind(avisoController));
+router.put('/avisos/:avisoId', authenticateUser, avisoController.updateAviso.bind(avisoController));
+router.delete('/avisos/:avisoId', authenticateUser, avisoController.deleteAviso.bind(avisoController));
 
 export { router };
