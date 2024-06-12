@@ -33,6 +33,22 @@ class PrestacaoService {
         return prestacoes;
     }
 
+    async getAllPrestacoesWithInfos() {
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany();
+
+        const response = [];
+
+        for (let index = 0; index < prestacoes.length; index++) {
+            const prestacao = prestacoes[index];
+            const contract = await prismaClient.contrato.findFirst({ where: { id: prestacao.contractId } });
+            const client = await prismaClient.cliente.findFirst({ where: { id: contract.clientId } });
+            let aux = { prestacao: prestacao, contrato: contract, cliente: client }
+            response.push(aux);
+        }
+
+        return response;
+    }
+
     async getPrestacaoById(prestacaoId: string, userId: string, isAdmin: boolean) {
 
         const prestacao = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
@@ -50,6 +66,31 @@ class PrestacaoService {
         }
 
         return prestacao;
+    }
+
+    async getPrestacaoByIdWithInfos(prestacaoId: string, userId: string, isAdmin: boolean) {
+
+        const prestacao = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacao) {
+            throw new Error('Prestacao nao encontrada no banco de dados.');
+        }
+
+        const contractByPrestacaoID = await prismaClient.contrato.findFirst({ where: { id: prestacao.contractId } });
+
+        const apartmentByContractId = await prismaClient.apartamento.findFirst({ where: { id: contractByPrestacaoID.aptId } });
+
+        const clientByContractId = await prismaClient.cliente.findFirst({ where: { id: contractByPrestacaoID.clientId } });
+
+        const userLoggedIn = await prismaClient.user.findFirst({ where: { id: userId } });
+
+        if (contractByPrestacaoID.clientId !== userLoggedIn.clientId && !isAdmin) {
+            throw new Error('Sem permissão para acessar a prestação.');
+        }
+
+        let aux = { cliente: clientByContractId, contrato: contractByPrestacaoID, apartamento: apartmentByContractId, prestacao: prestacao };
+
+        return aux;
     }
 
     async getPrestacoesByContratoId(contratoId: string, userId: string, isAdmin: boolean) {
@@ -83,7 +124,7 @@ class PrestacaoService {
 
         let prestacoes = [];
 
-        Promise.all(
+        await Promise.all(
             contracts.map(async (contract) => {
                 let prestacaoByContrato = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contract.id } });
                 prestacoes.push(prestacaoByContrato);

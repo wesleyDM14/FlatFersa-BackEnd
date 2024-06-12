@@ -41,6 +41,21 @@ class PrestacaoController {
         }
     }
 
+    async getAllPrestacaoWithInfo(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Você não tem permissão para acessar todas as prestações de alugueis.' });
+            }
+
+            const prestacoes = await prestacaoService.getAllPrestacoesWithInfos();
+
+            return res.status(200).json(prestacoes);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao obter as prestações do contrato.' });
+        }
+    }
+
     async getPrestacaoById(req: Request, res: Response) {
         try {
             const prestacaoId = req.params.prestacaoId;
@@ -50,6 +65,23 @@ class PrestacaoController {
             }
 
             const prestacao = await prestacaoService.getPrestacaoById(prestacaoId, req.user.id, req.user.isAdmin);
+
+            return res.status(200).json(prestacao);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao obter a prestacao do aluguel.' });
+        }
+    }
+
+    async getPrestacaoByIdWithInfos(req: Request, res: Response) {
+        try {
+            const prestacaoId = req.params.prestacaoId;
+
+            if (!prestacaoId) {
+                return res.status(400).json({ message: 'ID nao fornecido.' });
+            }
+
+            const prestacao = await prestacaoService.getPrestacaoByIdWithInfos(prestacaoId, req.user.id, req.user.isAdmin);
 
             return res.status(200).json(prestacao);
         } catch (error) {

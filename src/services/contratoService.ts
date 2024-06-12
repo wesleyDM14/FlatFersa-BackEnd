@@ -159,7 +159,8 @@ class ContratoService {
         for (let index = 0; index < contracts.length; index++) {
             const element = contracts[index];
             const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
-            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt };
+            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
+            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt, financeiro: parcelas };
             response.push(aux);
         }
 

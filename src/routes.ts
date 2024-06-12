@@ -70,7 +70,9 @@ router.delete('/contratos/:contratoId', authenticateUser, isAdmin, contratoContr
 router.post('/aluguel', authenticateUser, isAdmin, prestacaoController.createPrestacao.bind(prestacaoController));
 router.post('/aluguel/generateQrCode', authenticateUser, prestacaoController.generateQrCodePix.bind(prestacaoController));
 router.get('/aluguel', authenticateUser, prestacaoController.getAllPrestacao.bind(prestacaoController));
+router.get('/aluguel/infos', authenticateUser, isAdmin, prestacaoController.getAllPrestacaoWithInfo.bind(prestacaoController));
 router.get('/aluguel/:prestacaoId', authenticateUser, prestacaoController.getPrestacaoById.bind(prestacaoController));
+router.get('/aluguel/infos/:prestacaoId', authenticateUser, prestacaoController.getPrestacaoByIdWithInfos.bind(prestacaoController));
 router.get('/aluguel/contrato/:contratoId', authenticateUser, prestacaoController.getPrestacoesByContratoId.bind(prestacaoController));
 router.get('/aluguel-cliente', authenticateUser, prestacaoController.getPrestacaoByUserId.bind(prestacaoController));
 router.get('/aluguel/mes/:mesReferencia', authenticateUser, isAdmin, prestacaoController.getPrestacoesByMouth.bind(prestacaoController));
