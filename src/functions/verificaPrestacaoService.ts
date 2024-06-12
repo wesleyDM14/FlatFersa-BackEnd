@@ -45,8 +45,17 @@ async function aplicarMulta() {
                 const mesesEmAtraso = differenceInMonths(new Date(), dataVencimento);
 
                 if (mesesEmAtraso > 0) {
-                    const multa = valor * Math.pow(1 + 0.02, mesesEmAtraso);
-
+                    const multa = valor * 0.02 * mesesEmAtraso;
+                    await prismaClient.prestacaoAluguel.update({
+                        where: {
+                            id: id
+                        },
+                        data: {
+                            multa: multa
+                        }
+                    });
+                } else if (prestacao.multa === 0) {
+                    const multa = valor * 0.02;
                     await prismaClient.prestacaoAluguel.update({
                         where: {
                             id: id
