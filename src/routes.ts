@@ -26,7 +26,7 @@ router.post('/login', AuthController.login);
 
 //CRUD para PREDIO
 router.post('/predios', authenticateUser, isAdmin, predioController.createPredio.bind(predioController));
-router.get('/predios', authenticateUser, isAdmin, predioController.getPredios.bind(predioController));
+router.get('/predios', authenticateUser, predioController.getPredios.bind(predioController));
 router.get('/predios/:predioId', authenticateUser, isAdmin, predioController.getPredioById.bind(predioController));
 router.put('/predios/:predioId', authenticateUser, isAdmin, predioController.updatePredio.bind(predioController));
 router.delete('/predios/:predioId', authenticateUser, isAdmin, predioController.deletePredio.bind(predioController));
@@ -34,6 +34,7 @@ router.delete('/predios/:predioId', authenticateUser, isAdmin, predioController.
 //CRUD para APARTAMENTO
 router.post('/apartamentos', authenticateUser, isAdmin, apartamentoController.createApartamento.bind(apartamentoController));
 router.get('/apartamentos', authenticateUser, apartamentoController.getApartamentos.bind(apartamentoController));
+router.get('/apartamentos/predio/:predioId', authenticateUser, apartamentoController.getApartamentosByPredioId.bind(apartamentoController));
 router.get('/apartamentos-infos', authenticateUser, isAdmin, apartamentoController.getApartamentosWithInofs.bind(apartamentoController));
 router.get('/apartamentos/:apartamentoId', authenticateUser, apartamentoController.getApartamentoById.bind(apartamentoController));
 router.put('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartamentoController.updateApartamento.bind(apartamentoController));

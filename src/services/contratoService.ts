@@ -120,8 +120,9 @@ class ContratoService {
             const element = contratos[index];
             const currentClient = await prismaClient.cliente.findFirst({ where: { id: element.clientId } });
             const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
+            const currentPredio = await prismaClient.predio.findFirst({ where: { id: currentApt.id_predio } });
             const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
-            let aux = { contrato: element, cliente: currentClient, apartamento: currentApt, financeiro: parcelas };
+            let aux = { contrato: element, cliente: currentClient, apartamento: currentApt, financeiro: parcelas, predio: currentPredio };
             response.push(aux);
         }
 
@@ -159,8 +160,9 @@ class ContratoService {
         for (let index = 0; index < contracts.length; index++) {
             const element = contracts[index];
             const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
+            const currentPredio = await prismaClient.predio.findFirst({ where: { id: currentApt.id_predio } });
             const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
-            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt, financeiro: parcelas };
+            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt, financeiro: parcelas, predio: currentPredio };
             response.push(aux);
         }
 
@@ -188,7 +190,21 @@ class ContratoService {
             throw new Error('Contrato não encontrado no banco de dados.');
         }
 
-        await prismaClient.contrato.delete({ where: { id: contratoId } });
+        try {
+            await prismaClient.$transaction(async (prisma) => {
+
+                await prisma.contrato.delete({ where: { id: contratoId } });
+
+                await prisma.apartamento.update({
+                    where: { id: contratoExisting.aptId },
+                    data: {
+                        status: StatusApartamento.VAGO
+                    }
+                });
+            });
+        } catch (error) {
+            throw new Error('Erro ao deletar o contrato.');
+        }
     }
 
     async solicitarContrato(duracaoContrato: number, diaVencimentoAluguel: number, dataInicio: Date, aptId: string, userId: string) {

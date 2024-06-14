@@ -53,6 +53,23 @@ class ApartamentoService {
         return apartamentos;
     }
 
+    async getApartamentosByPredioId(predioId: string) {
+
+        const predioExist = await prismaClient.predio.findFirst({ where: { id: predioId } });
+
+        if (!predioExist) {
+            throw new Error('Predio não encontrado.');
+        }
+
+        const apartamentos = await prismaClient.apartamento.findMany({
+            where: { id_predio: predioId },
+            orderBy: {
+                numero: "asc"
+            }
+        });
+        return apartamentos;
+    }
+
     async getApartamentosWithInfo() {
         const apartamentos = await prismaClient.apartamento.findMany({
             orderBy: {

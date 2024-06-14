@@ -202,3 +202,15 @@ enum TipoPagamento {
   CALCAO
   ALUGUEL
 }
+
+enum FinalidadeEstabelecimento {
+  COMERCIAL
+  RESIDENCIAL
+  RURAL
+}
+
+enum TipoPredial {
+  CASA
+  COMERCIO
+  PREDIO
+}

@@ -29,9 +29,6 @@ class PredioController {
 
     async getPredios(req: Request, res: Response) {
         try {
-            if (!req.user.isAdmin) {
-                return res.status(403).json({ message: 'Apenas administradores podem acessar predios.' });
-            }
             const predios = await predioService.getPredios();
             res.json(predios);
         } catch (error) {

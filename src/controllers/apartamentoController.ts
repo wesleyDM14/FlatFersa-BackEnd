@@ -45,6 +45,21 @@ class ApartamentoController {
         }
     }
 
+    async getApartamentosByPredioId(req: Request, res: Response) {
+        try {
+            const predioId = req.params.predioId;
+
+            if (!predioId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+            const apartamentos = await apartamentoService.getApartamentosByPredioId(predioId);
+            return res.json(apartamentos);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: error.message });
+        }
+    }
+
     async getApartamentoById(req: Request, res: Response) {
         try {
             const apartamentoId = req.params.apartamentoId;
