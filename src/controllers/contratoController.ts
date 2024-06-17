@@ -226,6 +226,31 @@ class ContratoController {
         }
     }
 
+    async cancelarContrato(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Apenas administradores porem cancelar contratos.' });
+            }
+
+            const { contratoId, message } = req.body;
+
+            if (!contratoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            if (!message || message === '') {
+                return res.status(400).json({ message: 'Mensagem é obrigatória.' });
+            }
+
+            await contratoService.cancelarContrato(contratoId, message);
+            res.status(200).json({ message: 'Contrato Cancelado com sucesso.' });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
+        }
+    }
+
 }
 
 export default ContratoController;

@@ -1,7 +1,7 @@
 import { addMonths } from "date-fns";
 
 import prismaClient from "../prisma";
-import { PeriodicidadeContrato, StatusApartamento, StatusContrato, TipoPagamento } from "@prisma/client";
+import { PeriodicidadeContrato, StatusApartamento, StatusContrato, StatusPagamento, TipoPagamento } from "@prisma/client";
 
 class ContratoService {
 
@@ -255,8 +255,6 @@ class ContratoService {
                 throw new Error('Cliente com contrato ativo/aguardando ou apartamento com contrato ativo.');
             }
 
-
-
             const newContrato = await prismaClient.contrato.create({
                 data: {
                     duracaoContrato: duracaoContrato,
@@ -406,6 +404,58 @@ class ContratoService {
             });
         } catch (error) {
             throw new Error('Erro ao cadastrar contrato: ' + error.message);
+        }
+    }
+
+    async cancelarContrato(contratoId: string, message: string) {
+        const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+
+        if (!contractExisting) {
+            throw new Error('Contrato não encontrado no Banco de Dados.');
+        }
+
+        try {
+            await prismaClient.$transaction(async (prisma) => {
+
+                await prisma.contrato.update({
+                    where: { id: contractExisting.id },
+                    data: {
+                        statusContrato: StatusContrato.CANCELADO,
+                    }
+                });
+
+                await prisma.apartamento.update({
+                    where: { id: contractExisting.aptId },
+                    data: { status: StatusApartamento.VAGO }
+                });
+
+                let prestacoes = await prisma.prestacaoAluguel.findMany({ where: { contractId: contractExisting.id } });
+                
+                for (let index = 0; index < prestacoes.length; index++) {
+                    let element = prestacoes[index];
+
+                    if (element.statusPagamento === StatusPagamento.PENDENTE) {
+                        await prisma.prestacaoAluguel.update({
+                            where: { id: element.id },
+                            data: { statusPagamento: StatusPagamento.CANCELADO }
+                        });
+                    }
+                }
+
+                const clientUser = await prismaClient.user.findFirst({ where: { clientId: contractExisting.clientId } });
+
+                await prismaClient.avisos.create({
+                    data: {
+                        userId: clientUser.id,
+                        title: 'Cancelamento de Contrato',
+                        content: message,
+                    }
+                });
+
+                return;
+            });
+        } catch (error) {
+            throw new Error('Erro ao Cancelar contrato: ' + error.message);
         }
     }
 

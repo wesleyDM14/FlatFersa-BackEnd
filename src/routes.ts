@@ -58,6 +58,7 @@ router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController
 router.post('/contratos', authenticateUser, isAdmin, contratoController.createContrato.bind(contratoController));
 router.post('/contratos/solicitar', authenticateUser, contratoController.solicitarContrato.bind(contratoController));
 router.post('/contratos/aprovar', authenticateUser, isAdmin, contratoController.aprovarContrato.bind(contratoController));
+router.post('/contratos/cancelar', authenticateUser, isAdmin, contratoController.cancelarContrato.bind(contratoController));
 router.get('/contratos/reprovar/:contratoId', authenticateUser, isAdmin, contratoController.reprovarContrato.bind(contratoController));
 router.get('/contratos', authenticateUser, isAdmin, contratoController.getContratos.bind(contratoController));
 router.get('/contratos-infos', authenticateUser, isAdmin, contratoController.getContratosWithInfos.bind(contratoController));
