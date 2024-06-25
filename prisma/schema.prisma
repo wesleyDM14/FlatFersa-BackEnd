@@ -10,16 +10,17 @@ datasource db {
 
 //Definicao da tabela Predio
 model Predio {
-  id        String   @id @default(uuid())
-  nome      String
-  endereco  String
-  bairro    String
-  cidade    String
-  estado    String
-  numApt    Int
-  kwhPrice  Float    @default(0.7)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String                    @id @default(uuid())
+  nome       String
+  endereco   String
+  bairro     String
+  cidade     String
+  estado     String
+  numApt     Int
+  kwhPrice   Float                     @default(0.7)
+  createdAt  DateTime                  @default(now())
+  updatedAt  DateTime                  @updatedAt
+  finalidade FinalidadeEstabelecimento @default(RESIDENCIAL)
 
   //Relacionamento com a Tabela Apartamento
   apartamentos Apartamento[]
@@ -118,17 +119,19 @@ model User {
 
 //Definicao da tabela Cliente
 model Cliente {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
+  email           String        @unique
   name            String
-  cpf             String   @unique
-  rg              String   @unique
+  cpf             String        @unique
+  rg              String        @unique
   dateBirth       DateTime
   phone           String
   address         String?
   documentoFrente String? //Campo para armazenar o caminho/URL da imagem
   documentoVerso  String? //Campo para armazenar o caminho/URL da imagem
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  statusClient    StatusCliente @default(AGUARDANDO)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   //Relacionamento com a Tabela Contrato
   contratos Contrato[]
@@ -213,4 +216,10 @@ enum TipoPredial {
   CASA
   COMERCIO
   PREDIO
+}
+
+enum StatusCliente {
+  ATIVO
+  AGUARDANDO
+  REPROVADO
 }

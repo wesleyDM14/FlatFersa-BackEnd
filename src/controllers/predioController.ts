@@ -9,17 +9,17 @@ class PredioController {
             if (!req.user.isAdmin) {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar predio.' });
             }
-            const { endereco, bairro, cidade, estado, numApt, nome, kwhPrice } = req.body;
+            const { endereco, bairro, cidade, estado, numApt, nome, kwhPrice, finalidade } = req.body;
 
             if (!nome) {
                 return res.status(400).json({ message: 'Nome é obrogatório.' });
             }
 
-            if (!endereco || !bairro || !cidade || !estado || !kwhPrice) {
+            if (!endereco || !bairro || !cidade || !estado || !kwhPrice || !finalidade) {
                 return res.status(400).json({ message: 'Dados obrogatórios não informados.' });
             }
 
-            const newPredio = await predioService.createPredio(endereco, bairro, cidade, estado, numApt, nome, kwhPrice);
+            const newPredio = await predioService.createPredio(endereco, bairro, cidade, estado, numApt, nome, kwhPrice, finalidade);
             res.status(201).json(newPredio);
         } catch (error) {
             console.error(error);

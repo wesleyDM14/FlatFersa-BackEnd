@@ -5,6 +5,7 @@ import UserService from "./userService";
 import { hash } from "bcryptjs";
 
 import getToken from "../functions/getToken";
+import { StatusCliente } from "@prisma/client";
 
 class ClienteService {
 
@@ -24,6 +25,9 @@ class ClienteService {
                         },
                         {
                             rg: rg
+                        },
+                        {
+                            email: email
                         }
                     ]
                 }
@@ -92,13 +96,15 @@ class ClienteService {
                     const newClient = await prisma.cliente.create({
                         data: {
                             name: name,
+                            email: email,
                             cpf: cpf,
                             rg: rg,
                             dateBirth: dateBirth,
                             phone: phone,
                             address: address,
                             documentoFrente: uploadedFiles[0],
-                            documentoVerso: uploadedFiles[1]
+                            documentoVerso: uploadedFiles[1],
+                            statusClient: StatusCliente.ATIVO,
                         }
                     });
 

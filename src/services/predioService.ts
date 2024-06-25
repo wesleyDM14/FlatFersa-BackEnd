@@ -1,7 +1,8 @@
+import { FinalidadeEstabelecimento } from "@prisma/client";
 import prismaClient from "../prisma";
 
 class PredioService {
-    async createPredio(endereco: string, bairro: string, cidade: string, estado: string, numApt: number, nome: string, kwhPrice: number) {
+    async createPredio(endereco: string, bairro: string, cidade: string, estado: string, numApt: number, nome: string, kwhPrice: number, finalidade: FinalidadeEstabelecimento) {
         try {
             const newPredio = await prismaClient.predio.create({
                 data: {
@@ -12,6 +13,7 @@ class PredioService {
                     numApt: numApt,
                     kwhPrice: kwhPrice,
                     nome: nome,
+                    finalidade: finalidade
                 }
             });
 

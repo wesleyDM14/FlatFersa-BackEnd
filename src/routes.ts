@@ -23,6 +23,9 @@ const avisoController = new AvisoController();
 
 //rota de autenticação
 router.post('/login', AuthController.login);
+router.post('/signin', uploadFieldsClient, AuthController.requestAccess);
+router.post('/requestAccess/aprove', authenticateUser, isAdmin, AuthController.aproveAccess);
+router.post('/requestAccess/reprove', authenticateUser, isAdmin, AuthController.reproveAccess);
 
 //CRUD para PREDIO
 router.post('/predios', authenticateUser, isAdmin, predioController.createPredio.bind(predioController));
