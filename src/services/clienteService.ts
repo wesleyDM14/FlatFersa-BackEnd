@@ -1,19 +1,12 @@
 import prismaClient from "../prisma";
 import axios from 'axios';
 import fs from 'fs';
-import UserService from "./userService";
 import { hash } from "bcryptjs";
 
 import getToken from "../functions/getToken";
 import { StatusCliente } from "@prisma/client";
 
 class ClienteService {
-
-    private userService: UserService;
-
-    constructor() {
-        this.userService = new UserService();
-    }
 
     async createClient(name: string, cpf: string, rg: string, dateBirth: Date, phone: string, address: string, documentoFrente: Express.Multer.File, documentoVerso: Express.Multer.File, email: string) {
         try {

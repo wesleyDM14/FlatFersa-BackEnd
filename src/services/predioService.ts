@@ -39,7 +39,7 @@ class PredioService {
         return predio;
     }
 
-    async updatePredio(predioId: string, endereco: string, bairro: string, cidade: string, estado: string, numApt: number, kwhPrice: number) {
+    async updatePredio(predioId: string, endereco: string, bairro: string, cidade: string, estado: string, numApt: number, kwhPrice: number, finalidade: FinalidadeEstabelecimento) {
         const existingPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
         if (!existingPredio) {
@@ -56,7 +56,8 @@ class PredioService {
                 cidade: cidade,
                 estado: estado,
                 kwhPrice: kwhPrice,
-                numApt: numApt
+                numApt: numApt,
+                finalidade: finalidade
             }
         });
     }

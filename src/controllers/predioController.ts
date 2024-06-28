@@ -7,16 +7,16 @@ class PredioController {
     async createPredio(req: Request, res: Response) {
         try {
             if (!req.user.isAdmin) {
-                return res.status(403).json({ message: 'Apenas administradores podem cadastrar predio.' });
+                return res.status(403).json({ message: 'Apenas administradores podem cadastrar prédios.' });
             }
             const { endereco, bairro, cidade, estado, numApt, nome, kwhPrice, finalidade } = req.body;
 
             if (!nome) {
-                return res.status(400).json({ message: 'Nome é obrogatório.' });
+                return res.status(400).json({ message: 'Um nome identificador é obrigatório.' });
             }
 
-            if (!endereco || !bairro || !cidade || !estado || !kwhPrice || !finalidade) {
-                return res.status(400).json({ message: 'Dados obrogatórios não informados.' });
+            if (!endereco || !bairro || !cidade || !estado || !kwhPrice || !finalidade || !numApt) {
+                return res.status(400).json({ message: 'Dados obrigatórios não informados.' });
             }
 
             const newPredio = await predioService.createPredio(endereco, bairro, cidade, estado, numApt, nome, kwhPrice, finalidade);
@@ -61,13 +61,13 @@ class PredioController {
         try {
             const predioId = req.params.predioId;
 
-            const { endereco, bairro, cidade, estado, numApt, kwhPrice } = req.body;
+            const { endereco, bairro, cidade, estado, numApt, kwhPrice, finalidade } = req.body;
 
             if (!predioId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            if (!endereco || !bairro || !cidade || !estado || !kwhPrice) {
+            if (!endereco || !bairro || !cidade || !estado || !kwhPrice || !finalidade || !numApt) {
                 return res.status(400).json({ message: 'Dados obrigatórios não informados.' });
             }
 
@@ -75,7 +75,7 @@ class PredioController {
                 return res.status(403).json({ message: 'Apenas administradores podem atualizar predios.' });
             }
 
-            await predioService.updatePredio(predioId, endereco, bairro, cidade, estado, numApt, kwhPrice);
+            await predioService.updatePredio(predioId, endereco, bairro, cidade, estado, numApt, kwhPrice, finalidade);
             return res.json({ message: 'Predio atualizado com sucesso.' });
         } catch (error) {
             console.error(error);

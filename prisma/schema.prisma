@@ -24,6 +24,7 @@ model Predio {
 
   //Relacionamento com a Tabela Apartamento
   apartamentos Apartamento[]
+  Contrato     Contrato?
 }
 
 //Definicao da tabela Apartamento
@@ -55,16 +56,23 @@ model Contrato {
   diaVencimentoPagamento Int //Dia do Mes
   dataInicio             DateTime
   statusContrato         StatusContrato
+  leituraInicial         Int
+  leituraAtual           Int
   limiteKwh              Float? //Limite de consumo para gratuidade da conta de energia
-  saldoKwh               Float                 @default(0) //Banco de kWh
+  saldoKwh               Float?                @default(0) //Banco de kWh
+  assinado               Boolean               @default(false)
   periodicidadeReajuste  PeriodicidadeContrato @default(ANUALMENTE)
   linkPdfAssinado        String?
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
 
   //Relacionamento com a Tabela Apartamento
-  aptId String      @unique
-  apt   Apartamento @relation(fields: [aptId], references: [id])
+  aptId String?      @unique
+  apt   Apartamento? @relation(fields: [aptId], references: [id])
+
+  //Relacionamento com a Tabela Predio
+  predioId String? @unique
+  predio   Predio? @relation(fields: [predioId], references: [id])
 
   //Relacionamento com a Tabela Cliente
   clientId String  @unique
@@ -86,7 +94,7 @@ model PrestacaoAluguel {
   dataVencimento    DateTime
   dataPagamento     DateTime?
   statusPagamento   StatusPagamento @default(PENDENTE) //Status do pagamento (enum)
-  consumoKWh        Int? //Quantidade de KWh consumida no mês
+  consumoKWh        Int             @default(0) //Quantidade de KWh consumida no mês
   valorExcedenteKWh Float? //Valor do excedente de KWh a ser cobrado
   multa             Float?          @default(0)
   tipo              TipoPagamento   @default(ALUGUEL)
@@ -147,7 +155,7 @@ model Cliente {
 model HistoricoLocatarios {
   id          String   @id @default(uuid())
   dataEntrada DateTime
-  dataSaida   DateTime
+  dataSaida   DateTime?
   motivoSaida String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
