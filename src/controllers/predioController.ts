@@ -72,11 +72,11 @@ class PredioController {
             }
 
             if (!req.user.isAdmin) {
-                return res.status(403).json({ message: 'Apenas administradores podem atualizar predios.' });
+                return res.status(403).json({ message: 'Apenas administradores podem atualizar prédios.' });
             }
 
             await predioService.updatePredio(predioId, endereco, bairro, cidade, estado, numApt, kwhPrice, finalidade);
-            return res.json({ message: 'Predio atualizado com sucesso.' });
+            return res.json({ message: 'Prédio atualizado com sucesso.' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: error.message });
@@ -86,7 +86,7 @@ class PredioController {
     async deletePredio(req: Request, res: Response) {
         try {
             if (!req.user.isAdmin) {
-                return res.status(403).json({ message: 'Apenas administradores podem deletar predios.' });
+                return res.status(403).json({ message: 'Apenas administradores podem deletar prédios.' });
             }
             const predioId = req.params.predioId;
             if (!predioId) {

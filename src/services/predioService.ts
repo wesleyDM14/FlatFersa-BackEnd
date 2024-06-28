@@ -43,7 +43,7 @@ class PredioService {
         const existingPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
         if (!existingPredio) {
-            throw new Error('Predio não encontrado.');
+            throw new Error('Prédio não encontrado.');
         }
 
         await prismaClient.predio.update({
@@ -60,15 +60,18 @@ class PredioService {
                 finalidade: finalidade
             }
         });
+
+        return;
     }
 
     async deletePredio(predioId: string) {
         const existingPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
         if (!existingPredio) {
-            throw new Error('O predio não foi encontrado.');
+            throw new Error('O prédio não foi encontrado no banco de dados.');
         }
 
         await prismaClient.predio.delete({ where: { id: predioId } });
+        return;
     }
 }
 
