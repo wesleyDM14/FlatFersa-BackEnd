@@ -35,9 +35,9 @@ class ApartamentoController {
         }
     }
 
-    async getApartamentosWithInofs(req: Request, res: Response) {
+    async getApartamentosWithInfos(req: Request, res: Response) {
         try {
-            const apartamentos = await apartamentoService.getApartamentosWithInfo();
+            const apartamentos = await apartamentoService.getApartamentosWithInfos();
             return res.json(apartamentos);
         } catch (error) {
             console.error(error);

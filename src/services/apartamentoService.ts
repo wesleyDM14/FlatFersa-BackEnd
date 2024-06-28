@@ -8,7 +8,7 @@ class ApartamentoService {
             const currentPredio = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
             if (!currentPredio) {
-                throw new Error('ID de prédio não encontrado no Sistema.');
+                throw new Error('ID de prédio não encontrado no Banco de Dados.');
             }
 
             const apartamentoWithNumberExisting = await prismaClient.apartamento.findFirst({
@@ -58,7 +58,7 @@ class ApartamentoService {
         const predioExist = await prismaClient.predio.findFirst({ where: { id: predioId } });
 
         if (!predioExist) {
-            throw new Error('Predio não encontrado.');
+            throw new Error('Prédio não encontrado no Banco de Dados.');
         }
 
         const apartamentos = await prismaClient.apartamento.findMany({
@@ -70,7 +70,7 @@ class ApartamentoService {
         return apartamentos;
     }
 
-    async getApartamentosWithInfo() {
+    async getApartamentosWithInfos() {
         const apartamentos = await prismaClient.apartamento.findMany({
             orderBy: {
                 numero: "asc"
@@ -91,7 +91,7 @@ class ApartamentoService {
         const apartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoId } });
 
         if (!apartamento) {
-            throw new Error('Apartamento não encontrado.');
+            throw new Error('Apartamento não encontrado no Banco de Dados.');
         }
 
         return apartamento;
@@ -101,7 +101,7 @@ class ApartamentoService {
         const existingApartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoId } });
 
         if (!existingApartamento) {
-            throw new Error('Apartamento não encontrado.');
+            throw new Error('Apartamento não encontrado no Banco de Dados.');
         }
 
         await prismaClient.apartamento.update({
@@ -119,7 +119,7 @@ class ApartamentoService {
         const existingApartamento = await prismaClient.apartamento.findFirst({ where: { id: apartamentoID } });
 
         if (!existingApartamento) {
-            throw new Error('Apartamento não encontrado.');
+            throw new Error('Apartamento não encontrado no Banco de Dados.');
         }
 
         await prismaClient.apartamento.delete({ where: { id: apartamentoID } });
