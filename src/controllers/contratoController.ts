@@ -13,7 +13,7 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar novos contratos.' });
             }
 
-            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade } = req.body;
+            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraAtual, leituraInicial } = req.body;
 
             if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || !aptId || !clienteId || !periocidade) {
                 return res.status(400).json({ message: 'Por favor, envie os dados de cadastro de contrato corretamente.' });
@@ -23,7 +23,7 @@ class ContratoController {
                 return res.status(400).json({ message: 'Duração de contrato não pode ser inferior a 6 meses.' });
             }
 
-            const newContrato = await contratoService.createContrato(duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade);
+            const newContrato = await contratoService.createContrato(duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraInicial, leituraAtual);
             res.status(201).json(newContrato);
         } catch (error) {
             console.error(error);
@@ -95,7 +95,7 @@ class ContratoController {
             }
 
             const contratoId = req.params.contratoId;
-            const { novoStatus } = req.body;
+            const { novoStatus, novaDuracao, periodicidadeReajuste } = req.body;
 
             if (!contratoId) {
                 res.status(400).json({ message: 'ID não fornecido.' });
@@ -105,7 +105,7 @@ class ContratoController {
                 return res.status(400).json({ message: 'Status de contrato inválido.' });
             }
 
-            await contratoService.updateContrato(contratoId, novoStatus);
+            await contratoService.updateContrato(contratoId, novoStatus, novaDuracao, periodicidadeReajuste);
             res.status(200).json({ message: 'Contrato atualziado com sucesso.' });
         } catch (error) {
             console.error(error);

@@ -5,7 +5,7 @@ import { PeriodicidadeContrato, StatusApartamento, StatusContrato, StatusPagamen
 
 class ContratoService {
 
-    async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato) {
+    async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato, leituraInicial: number, leituraAtual: number) {
         try {
             const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { id: aptId } });
 
@@ -54,6 +54,8 @@ class ContratoService {
                             clientId: clientId,
                             statusContrato: StatusContrato.ATIVO,
                             periodicidadeReajuste: periocidade,
+                            leituraInicial: leituraInicial,
+                            leituraAtual: leituraAtual
                         }
                     });
 
@@ -169,19 +171,80 @@ class ContratoService {
         return response;
     }
 
-    async updateContrato(contratoId: string, novoStatus: StatusContrato) {
-        const contratoExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+    async updateContrato(contratoId: string, novoStatus: StatusContrato, novaDuracao: number, periodicidadeReajuste: PeriodicidadeContrato) {
+        const contratoExisting = await prismaClient.contrato.findFirst({
+            where: { id: contratoId },
+            include: { prestacaoAluguel: true }
+        });
+
         if (!contratoExisting) {
             throw new Error('Contrato não encontrado no banco de dados.');
         }
-        await prismaClient.contrato.update({
-            where: {
-                id: contratoId
-            },
-            data: {
-                statusContrato: novoStatus
+
+        let novaDuracaoGeral = contratoExisting.duracaoContrato;
+
+        const ultimaPrestacao = contratoExisting.prestacaoAluguel.reduce((ultima, prestacao) => {
+            return prestacao.dataVencimento > ultima.dataVencimento ? prestacao : ultima;
+        }, contratoExisting.prestacaoAluguel[0]);
+
+        let ultimaDataVencimento = ultimaPrestacao.dataVencimento;
+        const novasPrestacoes = [];
+
+        if (novaDuracao > 0) {
+            novaDuracaoGeral += novaDuracao;
+
+            for (let i = 1; i < novaDuracao; i++) {
+                ultimaDataVencimento = addMonths(ultimaDataVencimento, 1);
+                novasPrestacoes.push({
+                    contractId: contratoExisting.id,
+                    mesReferencia: ultimaDataVencimento.getMonth() + 1,
+                    valor: contratoExisting.valorAluguel,
+                    dataVencimento: ultimaDataVencimento
+                });
+            }
+        }
+
+        const today = new Date();
+
+        await prismaClient.$transaction(async (prisma) => {
+            await prisma.contrato.update({
+                where: {
+                    id: contratoId
+                },
+                data: {
+                    statusContrato: novoStatus,
+                    periodicidadeReajuste: periodicidadeReajuste,
+                    duracaoContrato: novaDuracaoGeral
+                }
+            });
+
+            await prisma.prestacaoAluguel.createMany({
+                data: novasPrestacoes
+            });
+
+            if (novoStatus === "CANCELADO") {
+                await prisma.apartamento.update({
+                    where: { id: contratoExisting.aptId },
+                    data: { status: StatusApartamento.VAGO }
+                });
+
+                const prestacoesRestantes = await prisma.prestacaoAluguel.findMany({
+                    where: {
+                        dataVencimento: {
+                            gt: today
+                        }
+                    }
+                });
+
+                prestacoesRestantes.map(async (element) => {
+                    await prisma.prestacaoAluguel.update({
+                        where: { id: element.id },
+                        data: { statusPagamento: StatusPagamento.CANCELADO }
+                    })
+                });
             }
         });
+
     }
 
     async deleteContrato(contratoId: string) {
@@ -263,7 +326,9 @@ class ContratoService {
                     dataInicio: dataInicio,
                     aptId: aptId,
                     clientId: clientId,
-                    statusContrato: StatusContrato.AGUARDANDO
+                    statusContrato: StatusContrato.AGUARDANDO,
+                    leituraAtual: 0,
+                    leituraInicial: 0
                 }
             });
 
@@ -430,7 +495,7 @@ class ContratoService {
                 });
 
                 let prestacoes = await prisma.prestacaoAluguel.findMany({ where: { contractId: contractExisting.id } });
-                
+
                 for (let index = 0; index < prestacoes.length; index++) {
                     let element = prestacoes[index];
 
