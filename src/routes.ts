@@ -54,7 +54,7 @@ router.delete('/users/:userId', authenticateUser, isAdmin, userController.delete
 router.post('/clients', authenticateUser, isAdmin, uploadFieldsClient, clienteController.createClient.bind(clienteController));
 router.get('/clients', authenticateUser, isAdmin, clienteController.getAllClients.bind(clienteController));
 router.get('/clients/:clientId', authenticateUser, clienteController.getClientById.bind(clienteController));
-router.put('/clients/:clientId', authenticateUser, clienteController.updateClient.bind(clienteController));
+router.put('/clients/:clientId', authenticateUser, uploadFieldsClient, clienteController.updateClient.bind(clienteController));
 router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController.deleteClient.bind(clienteController));
 
 //CRUD para CONTRATO

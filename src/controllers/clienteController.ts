@@ -6,9 +6,8 @@ const clienteService = new ClienteService();
 class ClienteController {
     async createClient(req: Request, res: Response) {
         try {
-            //pegar os dados na req e jogar para o service
             if (!req.user.isAdmin) {
-                return res.status(403).json({ message: 'Apenas administradores podem cadastrar clientes.' });
+                return res.status(403).json({ message: 'Apenas administradores podem cadastrar clientes ativos.' });
             }
 
             const { documentFront, documentBack } = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -62,7 +61,6 @@ class ClienteController {
         }
     }
 
-    //Atualizar fotos?
     async updateClient(req: Request, res: Response) {
         try {
             //Extrair o ID do usuário a ser obtido a partir dos parâmetros da solicitação
@@ -72,7 +70,15 @@ class ClienteController {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, req.body);
+            const { documentFront, documentBack } = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const { name, cpf, rg, dateBirth, phone, address } = req.body;
+
+            if (!documentBack && !documentFront) {
+                await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, name, cpf, rg, dateBirth, phone, address, undefined, undefined);
+            } else {
+                await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, name, cpf, rg, dateBirth, phone, address, documentFront[0], documentBack[0]);
+            }
+
             res.json({ message: 'Cliente atualizado com sucesso.' });
         } catch (error) {
             console.error(error);
