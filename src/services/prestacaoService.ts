@@ -2,6 +2,9 @@ import { StatusPagamento } from "@prisma/client";
 
 import prismaClient from "../prisma";
 import { generateQrCodePix } from "../functions/generatePix";
+import getToken from "../functions/getToken";
+import axios from "axios";
+import fs from 'fs';
 
 class PrestacaoService {
 
@@ -139,7 +142,7 @@ class PrestacaoService {
         return prestacoes;
     }
 
-    async updatePrestacao(prestacaoId: string, consumoKWh: number) {
+    async updatePrestacao(prestacaoId: string, novaLeitura: number) {
         try {
             const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
 
@@ -155,47 +158,32 @@ class PrestacaoService {
 
             //logica do banco de kWh
 
-            let consumoTotal = consumoKWh;
-            let valorAdicional = 0;
-            let excesso = 0;
+            let leituraAtual = contratoByPrestacao.leituraAtual;
+            let consumoKWh = novaLeitura - leituraAtual;
+            let valorAdicional = consumoKWh * predioApt.kwhPrice;
 
-            //verifica se o consumo está dentro do limite mensal
-            if (consumoTotal <= contratoByPrestacao.limiteKwh) {
-                //acumula creditos não utilizados
-                let creditoAcumulado = contratoByPrestacao.limiteKwh - consumoTotal;
-                await prismaClient.contrato.update({
-                    where: { id: contratoByPrestacao.id },
-                    data: { saldoKwh: contratoByPrestacao.saldoKwh + creditoAcumulado }
+            try {
+                await prismaClient.$transaction(async (prisma) => {
+                    await prisma.prestacaoAluguel.update({
+                        where: { id: prestacaoExisting.id },
+                        data: {
+                            consumoKWh: consumoKWh,
+                            valorExcedenteKWh: valorAdicional,
+                        }
+                    });
+
+                    await prisma.contrato.update({
+                        where: { id: contratoByPrestacao.id },
+                        data: {
+                            leituraAtual: leituraAtual,
+                        }
+                    });
                 });
-            } else {
-                //Calcula o excesso sem considerar créditos
-                excesso = consumoTotal - contratoByPrestacao.limiteKwh;
-
-                //verifica se há créditos acumulados suficientes para cobrir o excesso
-                if (excesso <= contratoByPrestacao.saldoKwh) {
-                    //Usa os créditos acumulados para cobrir o excesso
-                    await prismaClient.contrato.update({
-                        where: { id: contratoByPrestacao.id },
-                        data: { saldoKwh: contratoByPrestacao.saldoKwh - excesso }
-                    });
-                } else {
-                    excesso -= contratoByPrestacao.saldoKwh;
-                    await prismaClient.contrato.update({
-                        where: { id: contratoByPrestacao.id },
-                        data: { saldoKwh: 0 }
-                    });
-
-                    valorAdicional = excesso * predioApt.kwhPrice;
-                }
+            } catch (error) {
+                throw new Error('Erro ao atualizar dados da prestação no banco de dados.');
             }
 
-            await prismaClient.prestacaoAluguel.update({
-                where: { id: prestacaoExisting.id },
-                data: {
-                    consumoKWh: consumoKWh,
-                    valorExcedenteKWh: valorAdicional
-                }
-            });
+            return;
 
         } catch (error) {
             console.error(error);
@@ -203,7 +191,7 @@ class PrestacaoService {
         }
     }
 
-    async registrarPagamento(prestacaoId: string) {
+    async registrarPagamento(prestacaoId: string, comprovante: Express.Multer.File) {
         const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
 
         if (!prestacaoExisting) {
@@ -214,12 +202,40 @@ class PrestacaoService {
             throw new Error('Prestação já se encontra fechada no sistema.');
         }
 
+        const uploadedFiles = [];
+
+        if (comprovante) {
+            const token = await getToken();
+
+            try {
+                //upload comprovante
+                const response = await axios.post(
+                    `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
+                    fs.createReadStream(comprovante.path),
+                    {
+                        headers: {
+                            'Content-Disposition': `attachment; filename="${comprovante.originalname}"`,
+                            'Content-Type': comprovante.mimetype,
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+
+                fs.unlinkSync(comprovante.path);
+                uploadedFiles.push(response.data.source_url);
+
+            } catch (err) {
+                throw new Error('Error uploading files to WordPress. ' + err.message);
+            }
+        }
+
         await prismaClient.prestacaoAluguel.update({
             where: {
                 id: prestacaoId
             },
             data: {
-                statusPagamento: StatusPagamento.AGUARDANDO
+                statusPagamento: StatusPagamento.AGUARDANDO,
+                linkComprovante: uploadedFiles[0],
             }
         });
     }
@@ -275,7 +291,8 @@ class PrestacaoService {
                 version: '01',
                 key: '+5584999381079',
                 name: 'FLATFERSA',
-                city: 'Angicos',
+                city: 'ANGICOS',
+                cep: '59515000',
                 value: prestacaoExisting.valor
             }
 

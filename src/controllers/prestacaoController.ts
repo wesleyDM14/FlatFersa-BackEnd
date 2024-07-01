@@ -150,15 +150,15 @@ class PrestacaoController {
                 return res.status(400).json({ message: 'ID de prestação não fornecido.' });
             }
 
-            const { consumoKWh } = req.body;
+            const { novaLeitura } = req.body;
 
-            if (!consumoKWh) {
-                return res.status(400).json({ message: 'Por favor informe o consumo em KWh do mês.' });
+            if (!novaLeitura) {
+                return res.status(400).json({ message: 'Por favor informe o número do contador.' });
             }
 
-            await prestacaoService.updatePrestacao(prestacaoId, consumoKWh);
+            await prestacaoService.updatePrestacao(prestacaoId, novaLeitura);
 
-            return res.status(200).json({ message: 'Pretação de aluguelç atualizada com sucesso.' });
+            return res.status(200).json({ message: 'Pretação de aluguel atualizada com sucesso.' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Erro ao atualizar a prestação do aluguel.' });
@@ -168,12 +168,13 @@ class PrestacaoController {
     async registraPagamento(req: Request, res: Response) {
         try {
             const prestacaoId = req.params.prestacaoId;
+            const { file } = req;
 
             if (!prestacaoId) {
                 return res.status(400).json({ message: 'ID não fonecido.' });
             }
 
-            await prestacaoService.registrarPagamento(prestacaoId);
+            await prestacaoService.registrarPagamento(prestacaoId, file);
 
             return res.status(200).json({ message: 'Prestação paga com sucesso.' });
         } catch (error) {

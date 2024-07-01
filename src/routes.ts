@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { authenticateUser, isAdmin } from './middlewares/authMiddleware';
 import uploadFieldsClient from './middlewares/uploadClientMiddleware.ts';
+import uploadComprovante from './middlewares/uploadPrestacaoMiddleware';
 import { AuthController } from './controllers/authController';
 
 import UserController from './controllers/userController';
@@ -82,7 +83,7 @@ router.get('/aluguel/contrato/:contratoId', authenticateUser, prestacaoControlle
 router.get('/aluguel-cliente', authenticateUser, prestacaoController.getPrestacaoByUserId.bind(prestacaoController));
 router.get('/aluguel/mes/:mesReferencia', authenticateUser, isAdmin, prestacaoController.getPrestacoesByMouth.bind(prestacaoController));
 router.put('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.updatePrestacao.bind(prestacaoController));
-router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, prestacaoController.registraPagamento.bind(prestacaoController));
+router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, uploadComprovante, prestacaoController.registraPagamento.bind(prestacaoController));
 router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));
 router.delete('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.deletePrestacao.bind(prestacaoController));
 
