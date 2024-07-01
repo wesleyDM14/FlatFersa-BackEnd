@@ -13,9 +13,9 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar novos contratos.' });
             }
 
-            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraAtual, leituraInicial } = req.body;
+            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraAtual, leituraInicial, predioId } = req.body;
 
-            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || !aptId || !clienteId || !periocidade) {
+            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || (!aptId && !predioId) || !clienteId || !periocidade) {
                 return res.status(400).json({ message: 'Por favor, envie os dados de cadastro de contrato corretamente.' });
             }
 

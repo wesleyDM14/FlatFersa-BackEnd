@@ -7,6 +7,7 @@ class ContratoService {
 
     async createContrato(duracaoContrato: number, valorAluguel: number, diaVencimentoAluguel: number, dataInicio: Date, limiteKwh: number, aptId: string, clientId: string, periocidade: PeriodicidadeContrato, leituraInicial: number, leituraAtual: number) {
         try {
+
             const apartamentoExisting = await prismaClient.apartamento.findFirst({ where: { id: aptId } });
 
             if (!apartamentoExisting) {
