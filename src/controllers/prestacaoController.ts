@@ -22,7 +22,7 @@ class PrestacaoController {
             return res.status(201).json(newPrestacao);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao cadastrar prestação do aluguel.' });
+            res.status(500).json({ message: 'Erro ao cadastrar prestação do aluguel: ' + error.message });
         }
     }
 
@@ -37,7 +37,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações do contrato.' });
+            res.status(500).json({ message: 'Erro ao obter as prestações do contrato: ' + error.message });
         }
     }
 
@@ -52,7 +52,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações do contrato.' });
+            res.status(500).json({ message: 'Erro ao obter as prestações do contrato: ' +  error.message});
         }
     }
 
@@ -69,7 +69,7 @@ class PrestacaoController {
             return res.status(200).json(prestacao);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter a prestacao do aluguel.' });
+            res.status(500).json({ message: 'Erro ao obter a prestacao do aluguel: ' + error.message });
         }
     }
 
@@ -86,7 +86,7 @@ class PrestacaoController {
             return res.status(200).json(prestacao);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter a prestacao do aluguel.' });
+            res.status(500).json({ message: 'Erro ao obter a prestacao do aluguel: ' + error.message });
         }
     }
 
@@ -103,7 +103,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações do contrato.' });
+            res.status(500).json({ message: 'Erro ao obter as prestações do contrato: ' + error.message });
         }
     }
 
@@ -124,7 +124,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações dos alugueis.' });
+            res.status(500).json({ message: 'Erro ao obter as prestações dos alugueis: ' + error.message });
         }
     }
 
@@ -135,7 +135,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações do usuário.' });
+            res.status(500).json({ message: 'Erro ao obter as prestações do usuário: ' + error.message });
         }
     }
 
@@ -161,7 +161,7 @@ class PrestacaoController {
             return res.status(200).json({ message: 'Pretação de aluguel atualizada com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao atualizar a prestação do aluguel.' });
+            res.status(500).json({ message: 'Erro ao atualizar a prestação do aluguel: ' + error.message });
         }
     }
 
@@ -179,7 +179,7 @@ class PrestacaoController {
             return res.status(200).json({ message: 'Prestação paga com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao registrar pagamento na prestação do aluguel.' });
+            res.status(500).json({ message: 'Erro ao registrar pagamento na prestação do aluguel: ' + error.message });
         }
     }
 
@@ -199,7 +199,7 @@ class PrestacaoController {
             return res.status(200).json({ message: 'Prestação aprovada com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao confirmar pagamento na prestação do aluguel.' });
+            res.status(500).json({ message: 'Erro ao confirmar pagamento na prestação do aluguel: ' + error.message });
         }
     }
 
@@ -220,7 +220,7 @@ class PrestacaoController {
             return res.status(200).json({ message: 'Prestação deletada com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao deletar prestação do aluguel.' });
+            res.status(500).json({ message: 'Erro ao deletar prestação do aluguel: ' + error.message });
         }
     }
 
@@ -238,7 +238,7 @@ class PrestacaoController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao gerar QrCode de pagamento da prestação.' });
+            res.status(500).json({ message: 'Erro ao gerar QrCode de pagamento da prestação: ' + error.message });
         }
     }
 

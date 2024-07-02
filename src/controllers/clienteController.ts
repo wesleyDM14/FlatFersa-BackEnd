@@ -41,7 +41,7 @@ class ClienteController {
             res.json(clientes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter todos os clientes.' });
+            res.status(500).json({ message: 'Erro ao obter todos os clientes: ' + error.message });
         }
     }
 

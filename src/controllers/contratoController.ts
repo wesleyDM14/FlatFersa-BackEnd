@@ -13,9 +13,9 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem cadastrar novos contratos.' });
             }
 
-            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraAtual, leituraInicial, predioId } = req.body;
+            const { duracaoContrato, valorAluguel, diaVencimentoAluguel, dataInicio, limiteKwh, aptId, clienteId, periocidade, leituraAtual, leituraInicial } = req.body;
 
-            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || !limiteKwh || (!aptId && !predioId) || !clienteId || !periocidade) {
+            if (!duracaoContrato || !valorAluguel || !diaVencimentoAluguel || !dataInicio || (limiteKwh === null || limiteKwh === undefined) || !aptId || !clienteId || !periocidade || (leituraAtual === null || leituraAtual === undefined) || (leituraInicial === null || leituraInicial === undefined)) {
                 return res.status(400).json({ message: 'Por favor, envie os dados de cadastro de contrato corretamente.' });
             }
 
@@ -27,7 +27,7 @@ class ContratoController {
             res.status(201).json(newContrato);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao cadastrar o contrato.' });
+            res.status(500).json({ message: 'Erro ao cadastrar o contrato: ' + error.message });
         }
 
     }
@@ -43,7 +43,7 @@ class ContratoController {
             res.json(contratos);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter todos os contratos.' });
+            res.status(500).json({ message: 'Erro ao obter todos os contratos: ' + error.message });
         }
     }
 
@@ -58,7 +58,7 @@ class ContratoController {
             res.json(contratos);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter todos os contratos.' });
+            res.status(500).json({ message: 'Erro ao obter todos os contratos: ' + error.message });
         }
     }
 
@@ -73,7 +73,7 @@ class ContratoController {
             res.json(contrato);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter o contrato.' });
+            res.status(500).json({ message: 'Erro ao obter o contrato: ' + error.message });
         }
     }
 
@@ -84,7 +84,7 @@ class ContratoController {
             res.json(contratos);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter o contrato.' });
+            res.status(500).json({ message: 'Erro ao obter o contrato: ' + error.message });
         }
     }
 
@@ -109,7 +109,7 @@ class ContratoController {
             res.status(200).json({ message: 'Contrato atualziado com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao atualizar o contrato.' });
+            res.status(500).json({ message: 'Erro ao atualizar o contrato: ' + error.message });
         }
     }
 
@@ -130,7 +130,7 @@ class ContratoController {
             res.json({ message: 'Contrato deletado com sucesso.' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao deletar contrato.' });
+            res.status(500).json({ message: 'Erro ao deletar contrato: ' + error.message });
         }
     }
 
@@ -156,7 +156,7 @@ class ContratoController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao baixar contrato.' });
+            res.status(500).json({ message: 'Erro ao baixar contrato: ' + error.message });
         }
     }
 
@@ -177,7 +177,7 @@ class ContratoController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao solicitar contrato.' });
+            res.status(500).json({ message: 'Erro ao solicitar contrato: ' + error.message });
         }
     }
 
@@ -187,21 +187,21 @@ class ContratoController {
                 return res.status(403).json({ message: 'Apenas administradores podem aprovar novos contratos.' });
             }
 
-            const { contratoId, valorAluguel, periocidade, limiteKwh } = req.body;
+            const { contratoId, valorAluguel, periocidade, limiteKwh, leituraInicial } = req.body;
 
             if (!contratoId) {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            if (!valorAluguel || !periocidade || !limiteKwh) {
+            if (!valorAluguel || !periocidade || (limiteKwh === null || limiteKwh === undefined) || (leituraInicial === null || leituraInicial === undefined)) {
                 return res.status(400).json({ message: 'Informe os dados do contrato corretamente.' });
             }
 
-            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel, periocidade, limiteKwh);
+            const newContrato = await contratoService.aprovarContrato(contratoId, valorAluguel, periocidade, limiteKwh, leituraInicial);
             res.status(200).json(newContrato);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
+            res.status(500).json({ message: 'Erro ao aprovar contrato: ' + error.message });
         }
     }
 
@@ -222,7 +222,7 @@ class ContratoController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
+            res.status(500).json({ message: 'Erro ao aprovar contrato: ' + error.message });
         }
     }
 
@@ -247,7 +247,7 @@ class ContratoController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao aprovar contrato.' });
+            res.status(500).json({ message: 'Erro ao aprovar contrato: ' + error.message });
         }
     }
 

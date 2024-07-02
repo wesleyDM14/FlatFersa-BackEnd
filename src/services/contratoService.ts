@@ -360,7 +360,7 @@ class ContratoService {
         }
     }
 
-    async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato, limiteKwh: number) {
+    async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato, limiteKwh: number, leituraInicial: number) {
         const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
 
         if (!contractExisting) {
@@ -406,7 +406,9 @@ class ContratoService {
                         statusContrato: StatusContrato.ATIVO,
                         periodicidadeReajuste: periocidade,
                         valorAluguel: valorAluguel,
-                        limiteKwh: limiteKwh
+                        limiteKwh: limiteKwh,
+                        leituraInicial: leituraInicial,
+                        leituraAtual: leituraInicial
                     }
                 });
 

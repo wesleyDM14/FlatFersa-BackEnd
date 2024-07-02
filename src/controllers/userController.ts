@@ -44,7 +44,7 @@ class UserController {
             res.json(users);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter todos os usuários.' });
+            res.status(500).json({ message: 'Erro ao obter todos os usuários: ' + error.message });
         }
     }
 

@@ -24,7 +24,7 @@ export const AuthController = {
             return res.status(200).json({ accessToken });
         } catch (error) {
             console.error('Erro ao fazer login: ', error);
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ message: 'Erro interno do servidor: ' + error.message });
         }
     },
 
@@ -44,7 +44,7 @@ export const AuthController = {
 
         } catch (error) {
             console.error('Erro ao fazer solicitação: ', error);
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ message: 'Erro interno do servidor: ' + error.message });
         }
     },
 
@@ -65,7 +65,7 @@ export const AuthController = {
 
         } catch (error) {
             console.error('Erro ao aprovar solicitação: ', error);
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ message: 'Erro interno do servidor: ' + error.message });
         }
     },
 
@@ -86,7 +86,7 @@ export const AuthController = {
 
         } catch (error) {
             console.error('Erro ao Reprovar solicitação: ', error);
-            return res.status(500).json({ message: 'Erro interno do servidor' });
+            return res.status(500).json({ message: 'Erro interno do servidor: ' + error.message });
         }
     }
 }
