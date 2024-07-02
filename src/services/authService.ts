@@ -204,6 +204,8 @@ export const reprovarAcessoCliente = async (clientId: string) => {
         });
 
         //feedback?
+
+        return;
     } catch (error) {
         throw new Error('Erro em reprovar acesso do cliente: ' + error.message);
     }

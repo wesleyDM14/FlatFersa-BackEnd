@@ -242,6 +242,8 @@ class ClienteService {
         } catch (error) {
             throw new Error('Erro ao excluir cliente e usuário: ' + error.message);
         }
+
+        return;
     }
 }
 

@@ -251,6 +251,29 @@ class ContratoController {
         }
     }
 
+    async assinarContrato(req: Request, res: Response) {
+        try {
+            const contratoId = req.params.contratoId;
+
+            if (!contratoId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const { file } = req;
+
+            if (!file) {
+                return res.status(400).json({ message: 'Anexo obrigatório faltando.' });
+            }
+
+            await contratoService.assinarContrato(contratoId, file);
+            return res.status(200).json({ message: 'Contrato assinado com sucesso.' });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao assinar contrato: ' + error.message });
+        }
+    }
+
 }
 
 export default ContratoController;

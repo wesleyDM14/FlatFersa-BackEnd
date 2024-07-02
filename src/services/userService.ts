@@ -76,6 +76,8 @@ class UserService {
         novaSenha = passwordHash;
 
         await prismaClient.user.update({ where: { id: userId }, data: { password: novaSenha } });
+
+        return;
     }
 
     async deleteUserById(userId: string) {
@@ -87,6 +89,8 @@ class UserService {
 
         //Deletar o usuáro
         await prismaClient.user.delete({ where: { id: userId } });
+
+        return;
     }
 }
 

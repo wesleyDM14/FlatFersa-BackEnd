@@ -238,6 +238,8 @@ class PrestacaoService {
                 linkComprovante: uploadedFiles[0],
             }
         });
+
+        return;
     }
 
     async aprovaPagamento(prestacaoId: string) {
@@ -263,6 +265,8 @@ class PrestacaoService {
         } else {
             throw new Error('Prestação de aluguel não consta como paga.');
         }
+
+        return;
     }
 
     async deletePrestacao(prestacaoId: string) {
@@ -273,6 +277,8 @@ class PrestacaoService {
         }
 
         await prismaClient.prestacaoAluguel.delete({ where: { id: prestacaoId } });
+
+        return;
     }
 
     async generateQrCodePixPagamento(prestacaoId: string) {

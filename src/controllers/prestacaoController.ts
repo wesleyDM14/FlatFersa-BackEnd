@@ -52,7 +52,7 @@ class PrestacaoController {
             return res.status(200).json(prestacoes);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Erro ao obter as prestações do contrato: ' +  error.message});
+            res.status(500).json({ message: 'Erro ao obter as prestações do contrato: ' + error.message });
         }
     }
 
@@ -172,6 +172,10 @@ class PrestacaoController {
 
             if (!prestacaoId) {
                 return res.status(400).json({ message: 'ID não fonecido.' });
+            }
+
+            if (!file) {
+                return res.status(400).json({ message: 'Anexo obrigatório faltando.' });
             }
 
             await prestacaoService.registrarPagamento(prestacaoId, file);

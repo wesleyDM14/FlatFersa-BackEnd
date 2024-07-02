@@ -184,7 +184,6 @@ model Avisos {
 enum StatusContrato {
   ATIVO
   AGUARDANDO
-  ASSINAR
   CANCELADO
   ENCERRADO
 }

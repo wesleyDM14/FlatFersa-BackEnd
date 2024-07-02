@@ -2,6 +2,9 @@ import { addMonths } from "date-fns";
 
 import prismaClient from "../prisma";
 import { PeriodicidadeContrato, StatusApartamento, StatusContrato, StatusPagamento, TipoPagamento } from "@prisma/client";
+import getToken from "../functions/getToken";
+import fs from 'fs';
+import axios from "axios";
 
 class ContratoService {
 
@@ -246,6 +249,8 @@ class ContratoService {
             }
         });
 
+        return;
+
     }
 
     async deleteContrato(contratoId: string) {
@@ -269,6 +274,8 @@ class ContratoService {
         } catch (error) {
             throw new Error('Erro ao deletar o contrato.');
         }
+
+        return;
     }
 
     async solicitarContrato(duracaoContrato: number, diaVencimentoAluguel: number, dataInicio: Date, aptId: string, userId: string) {
@@ -525,6 +532,51 @@ class ContratoService {
         } catch (error) {
             throw new Error('Erro ao Cancelar contrato: ' + error.message);
         }
+    }
+
+    async assinarContrato(contratoid: string, contratoAssinado: Express.Multer.File) {
+        const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoid } });
+
+        if (!contractExisting) {
+            throw new Error('Contrato não existe no Banco de Dados.');
+        }
+
+        if (contractExisting.assinado) {
+            throw new Error('Contrato não está em etapa de assinatura.');
+        }
+
+        const uploadedFiles = [];
+
+        try {
+            const token = await getToken();
+
+            const response = await axios.post(
+                `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
+                fs.createReadStream(contratoAssinado.path),
+                {
+                    headers: {
+                        'Content-Disposition': `attachment; filename="${contratoAssinado.originalname}"`,
+                        'Content-Type': contratoAssinado.mimetype,
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            fs.unlinkSync(contratoAssinado.path);
+            uploadedFiles.push(response.data.source_url);
+        } catch (error) {
+            throw new Error('Error uploading files to WordPress. ' + error.message);
+        }
+
+        await prismaClient.contrato.update({
+            where: { id: contractExisting.id },
+            data: {
+                linkPdfAssinado: uploadedFiles[0],
+                assinado: true
+            }
+        });
+
+        return;
     }
 
 }

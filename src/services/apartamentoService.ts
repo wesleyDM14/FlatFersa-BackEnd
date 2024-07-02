@@ -113,6 +113,8 @@ class ApartamentoService {
                 valorBase: valorBase
             }
         });
+
+        return;
     }
 
     async deleteApartamento(apartamentoID: string) {
@@ -123,6 +125,8 @@ class ApartamentoService {
         }
 
         await prismaClient.apartamento.delete({ where: { id: apartamentoID } });
+
+        return;
     }
 }
 
