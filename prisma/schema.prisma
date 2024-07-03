@@ -24,7 +24,7 @@ model Predio {
 
   //Relacionamento com a Tabela Apartamento
   apartamentos Apartamento[]
-  Contrato     Contrato?
+  Contrato     Contrato[]
 }
 
 //Definicao da tabela Apartamento
@@ -67,15 +67,15 @@ model Contrato {
   updatedAt              DateTime              @updatedAt
 
   //Relacionamento com a Tabela Apartamento
-  aptId String?      @unique
+  aptId String?
   apt   Apartamento? @relation(fields: [aptId], references: [id])
 
   //Relacionamento com a Tabela Predio
-  predioId String? @unique
+  predioId String?
   predio   Predio? @relation(fields: [predioId], references: [id])
 
   //Relacionamento com a Tabela Cliente
-  clientId String  @unique
+  clientId String
   cliente  Cliente @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   //Relacionamento com a tabela PresacaoAluguel
@@ -153,12 +153,12 @@ model Cliente {
 
 //Definicao da tabela HistoricoLocatario
 model HistoricoLocatarios {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   dataEntrada DateTime
   dataSaida   DateTime?
   motivoSaida String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   //Relacionamento com a tabela de Cliente
   cliente   Cliente @relation(fields: [clienteID], references: [id])

@@ -91,10 +91,12 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         doc.fillColor('black').font('Times-Roman').fontSize(12).text('Fica vedada a sub-locação do imóvel ou a cessão dos direitos decorrentes deste instrumento a terceiros, mesmo que parcial ou temporária, seja a que título for, por parte do LOCATÓRIO, sem a anuência, por escrito, do LOCADOR.', { align: 'justify' });
         doc.moveDown();
         doc.fillColor('red').text('CLÁUSULA QUINTA');
+
         //Verificar com Cliente a presença de taxas de energia elétrica
         doc.fillColor('black').font('Times-Roman').fontSize(12).text('Além do aluguel mensal, incumbirá ao LOCATÁRIO o pagamento de todas as despesas e tributos incidentes sobre o imóvel, como, por exemplo, taxas de energia elétrica (com pedido de religação), internet e telefone fixo. Com exceção de água, pois, está inclusa juntamente com o imóvel.', { align: 'justify' });
 
         //Verificar a nescessidade dessa seção.
+        //se mantém nos demais prédios fora o flat
         doc.fillColor('red').text('PARÁGRAFO PRIMEIRO ', { continued: true });
         doc.fillColor('black').font('Times-Roman').fontSize(12).text('- É de inteira responsabilidade do LOCATÁRIO fazer o cancelamento da energia elétrica do flat alugado. Deve dirigir-se as agências da COSERN ou ligar para o número 116, além do mais, verificar as contas disponíveis no sistema para efetuar o pagamento e não deixar dívidas no imóvel. ', { align: 'justify' });
         //****************************************************************************************************************************************************************** */

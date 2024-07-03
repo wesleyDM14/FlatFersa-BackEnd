@@ -141,7 +141,7 @@ class PrestacaoController {
 
     async updatePrestacao(req: Request, res: Response) {
         try {
-            if (req.user.isAdmin) {
+            if (!req.user.isAdmin) {
                 return res.status(403).json({ message: 'Você não tem autorização para atualizar prestações de alugueis.' });
             }
             const prestacaoId = req.params.prestacaoId;
@@ -204,6 +204,26 @@ class PrestacaoController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Erro ao confirmar pagamento na prestação do aluguel: ' + error.message });
+        }
+    }
+
+    async reprovarPagamento(req: Request, res: Response) {
+        try {
+            if (!req.user.isAdmin) {
+                return res.status(403).json({ message: 'Sem autorização.' });
+            }
+
+            const prestacaoId = req.params.prestacaoId;
+
+            if (!prestacaoId) {
+                return res.status(400).json({ message: 'ID não fonecido.' });
+            }
+
+            await prestacaoService.reprovarPagamento(prestacaoId);
+            return res.status(200).json({ message: 'Prestação reprovada com sucesso.' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao confirmar efetuar operação: ' + error.message });
         }
     }
 

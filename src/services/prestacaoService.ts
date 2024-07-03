@@ -32,12 +32,16 @@ class PrestacaoService {
     }
 
     async getAllPrestacoes() {
-        const prestacoes = await prismaClient.prestacaoAluguel.findMany();
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany({
+            orderBy: { dataVencimento: "asc" }
+        });
         return prestacoes;
     }
 
     async getAllPrestacoesWithInfos() {
-        const prestacoes = await prismaClient.prestacaoAluguel.findMany();
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany({
+            orderBy: { dataVencimento: "asc" }
+        });
 
         const response = [];
 
@@ -109,7 +113,10 @@ class PrestacaoService {
             throw new Error('Você não tem permissão para acessar este contrato.');
         }
 
-        const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contratoId } });
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany({
+            where: { contractId: contratoId },
+            orderBy: { dataVencimento: "asc" }
+        });
 
         return prestacoes;
     }
@@ -129,7 +136,10 @@ class PrestacaoService {
 
         await Promise.all(
             contracts.map(async (contract) => {
-                let prestacaoByContrato = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: contract.id } });
+                let prestacaoByContrato = await prismaClient.prestacaoAluguel.findMany({
+                    where: { contractId: contract.id },
+                    orderBy: { dataVencimento: "asc" }
+                });
                 prestacoes.push(prestacaoByContrato);
             })
         );
@@ -138,7 +148,10 @@ class PrestacaoService {
     }
 
     async getPrestacoesByMounth(mesReferencia: number) {
-        const prestacoes = await prismaClient.prestacaoAluguel.findMany({ where: { mesReferencia: mesReferencia } });
+        const prestacoes = await prismaClient.prestacaoAluguel.findMany({
+            where: { mesReferencia: mesReferencia },
+            orderBy: { dataVencimento: "asc" }
+        });
         return prestacoes;
     }
 
@@ -175,7 +188,7 @@ class PrestacaoService {
                     await prisma.contrato.update({
                         where: { id: contratoByPrestacao.id },
                         data: {
-                            leituraAtual: leituraAtual,
+                            leituraAtual: novaLeitura,
                         }
                     });
                 });
@@ -269,6 +282,30 @@ class PrestacaoService {
         return;
     }
 
+    async reprovarPagamento(prestacaoId: string) {
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+        if (!prestacaoExisting) {
+            throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+        }
+
+        if (prestacaoExisting.statusPagamento !== StatusPagamento.AGUARDANDO) {
+            throw new Error('Sem nescessidade dessa operação.');
+        }
+
+        await prismaClient.prestacaoAluguel.update({
+            where: {
+                id: prestacaoId
+            },
+            data: {
+                statusPagamento: StatusPagamento.PENDENTE,
+                linkComprovante: null
+            }
+        });
+
+        return;
+    }
+
     async deletePrestacao(prestacaoId: string) {
         const existingPretacao = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
 
@@ -289,9 +326,19 @@ class PrestacaoService {
                 throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
             }
 
-            if (prestacaoExisting.statusPagamento === StatusPagamento.PAGO || prestacaoExisting.statusPagamento === StatusPagamento.CANCELADO) {
-                throw new Error('Prestação já se encontra fechada no sistema.');
+            if (prestacaoExisting.statusPagamento === StatusPagamento.PAGO) {
+                return { status: 'PAGO', message: 'Prestação já se encontra fechada no sistema.' };
             }
+
+            if (prestacaoExisting.statusPagamento === StatusPagamento.CANCELADO) {
+                return { status: 'CANCELADO', message: 'Prestação já se encontra fechada no sistema.' };
+            }
+
+            if (prestacaoExisting.statusPagamento === StatusPagamento.AGUARDANDO) {
+                return { status: 'AGUARDANDO', message: 'Prestação se encontra em análise de comprovante.' };
+            }
+
+            let valorTotal = prestacaoExisting.valor + prestacaoExisting.multa + prestacaoExisting.valorExcedenteKWh;
 
             let dataPagamento = {
                 version: '01',
@@ -299,7 +346,7 @@ class PrestacaoService {
                 name: 'FLATFERSA',
                 city: 'ANGICOS',
                 cep: '59515000',
-                value: prestacaoExisting.valor
+                value: valorTotal
             }
 
             const response = await generateQrCodePix(dataPagamento);

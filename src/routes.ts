@@ -85,6 +85,7 @@ router.get('/aluguel/mes/:mesReferencia', authenticateUser, isAdmin, prestacaoCo
 router.put('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.updatePrestacao.bind(prestacaoController));
 router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, uploadComprovante, prestacaoController.registraPagamento.bind(prestacaoController));
 router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));
+router.put('/aluguel/reprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.reprovarPagamento.bind(prestacaoController));
 router.delete('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.deletePrestacao.bind(prestacaoController));
 
 //CRUD para AVISOS
