@@ -3,6 +3,7 @@ import { addMonths, format } from 'date-fns';
 
 import prismaClient from '../prisma';
 import { FinalidadeEstabelecimento } from '@prisma/client';
+import axios from 'axios';
 
 export async function gerarContratoPDF(contratoId: string, userId: string, dataCallback: any, endCallback: any) {
 
@@ -129,7 +130,7 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         doc.moveDown();
 
         if (predio.nome === 'FlatFersa') {
-            
+
             doc.fillColor('red').text('CLÁUSULA DÉCIMA PRIMEIRA');
             doc.fillColor('black').font('Times-Roman').fontSize(12).text('Sobre o fornecimento e o uso de Energia Elétrica.', { align: 'justify' });
             doc.fillColor('black').font('Times-Roman').fontSize(12).text(`- O valor a ser pago pelo LOCATÁRIO será calculado com base na tarifa de energia elétrica vigente, fornecida pela concessionária local, multiplicando pela quantidade de kWh excedentes.`, { align: 'justify' });
@@ -179,15 +180,22 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
         doc.moveDown();
         doc.moveDown();
 
-        const signatureY = doc.y;
-        doc.moveTo(100, signatureY).lineTo(250, signatureY).stroke();
-        doc.moveTo(350, signatureY).lineTo(500, signatureY).stroke();
+        doc.font('Times-Roman').fontSize(12).text('LOCADOR:', 70, doc.y);
 
-        doc.text('Locatário', 100, signatureY + 10);
-        doc.text('Locador', 350, signatureY + 10);
-        doc.moveDown();
-        doc.moveDown();
-        doc.moveDown();
+        const imageUrl = 'https://flatfersa.escritoriooffset.com.br/wp-content/uploads/2024/07/assinatura-1.png';
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const imageBuffer = Buffer.from(response.data, 'base64');
+
+        doc.image(imageBuffer, 70, doc.y - 5, { width: 250 });
+        doc.moveDown().moveDown().moveDown().moveDown();
+
+        //doc.moveTo(350, signatureY).lineTo(500, signatureY).stroke();
+
+        //doc.text('Locatário', 100, signatureY + 10);
+        //doc.text('Locador', 350, signatureY + 10);
+
+        doc.font('Times-Roman').fontSize(12).text('LOCATÁRIO:', { align: 'left' });
+        doc.moveDown().moveDown().moveDown();
 
         const dateText = 'Angicos/RN, Data: ___/___/_______';
         const dateTextWidth = doc.widthOfString(dateText);

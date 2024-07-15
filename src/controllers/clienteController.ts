@@ -70,14 +70,13 @@ class ClienteController {
                 return res.status(400).json({ message: 'ID não fornecido.' });
             }
 
-            const { documentFront, documentBack } = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
             const { name, cpf, rg, dateBirth, phone, address } = req.body;
 
-            if (!documentBack && !documentFront) {
-                await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, name, cpf, rg, dateBirth, phone, address, undefined, undefined);
-            } else {
-                await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, name, cpf, rg, dateBirth, phone, address, documentFront[0], documentBack[0]);
-            }
+            const documentFront = files?.documentFront ? files.documentFront[0] : undefined;
+            const documentBack = files?.documentBack ? files.documentBack[0] : undefined;
+
+            await clienteService.updateClient(clientId, req.user.id, req.user.isAdmin, name, cpf, rg, dateBirth, phone, address, documentFront, documentBack);
 
             res.json({ message: 'Cliente atualizado com sucesso.' });
         } catch (error) {

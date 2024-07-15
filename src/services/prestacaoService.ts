@@ -5,6 +5,7 @@ import { generateQrCodePix } from "../functions/generatePix";
 import getToken from "../functions/getToken";
 import axios from "axios";
 import fs from 'fs';
+import { verificaPrestacoesEmAtraso } from "../functions/verificaPrestacaoService";
 
 class PrestacaoService {
 
@@ -215,7 +216,7 @@ class PrestacaoService {
             throw new Error('Prestação já se encontra fechada no sistema.');
         }
 
-        const uploadedFiles = [];
+        let uploadedFileUrl = '';
 
         if (comprovante) {
             const token = await getToken();
@@ -235,7 +236,7 @@ class PrestacaoService {
                 );
 
                 fs.unlinkSync(comprovante.path);
-                uploadedFiles.push(response.data.source_url);
+                uploadedFileUrl = response.data.source_url;
 
             } catch (err) {
                 throw new Error('Error uploading files to WordPress. ' + err.message);
@@ -248,7 +249,7 @@ class PrestacaoService {
             },
             data: {
                 statusPagamento: StatusPagamento.AGUARDANDO,
-                linkComprovante: uploadedFiles[0],
+                linkComprovante: uploadedFileUrl,
             }
         });
 
@@ -303,6 +304,8 @@ class PrestacaoService {
             }
         });
 
+        verificaPrestacoesEmAtraso();
+
         return;
     }
 
@@ -354,6 +357,50 @@ class PrestacaoService {
             return response;
         } catch (error) {
             throw new Error('Erro ao gerar QrCodePix: ' + error.message);
+        }
+    }
+
+    async marcarPago(prestacaoId: string) {
+        try {
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+            if (!prestacaoExisting) {
+                throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+            }
+
+            await prismaClient.prestacaoAluguel.update({
+                where: { id: prestacaoId },
+                data: {
+                    statusPagamento: StatusPagamento.PAGO
+                }
+            });
+
+            return;
+        } catch (error) {
+            throw new Error('Erro marcar prestação como paga:  ' + error.message);
+        }
+    }
+
+    async marcarPendente(prestacaoId: string) {
+        try {
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+            if (!prestacaoExisting) {
+                throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+            }
+
+            await prismaClient.prestacaoAluguel.update({
+                where: { id: prestacaoId },
+                data: {
+                    statusPagamento: StatusPagamento.PENDENTE
+                }
+            });
+
+            verificaPrestacoesEmAtraso();
+
+            return;
+        } catch (error) {
+            throw new Error('Erro marcar prestação como paga:  ' + error.message);
         }
     }
 }

@@ -48,6 +48,19 @@ class UserController {
         }
     }
 
+    async getLoggedUserInfo(req: Request, res: Response) {
+        try {
+            const userId = req.user.id;
+
+            const user = await userService.getLoggedUserInfo(userId);
+
+            res.json(user);
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ message: 'Erro ao pegr dados do usuário: ' + error.message });
+        }
+    }
+
     async getUserById(req: Request, res: Response) {
         try {
             //Extrair o ID do usuário a ser obtido a partir dos parâmetros da solicitação
@@ -74,29 +87,45 @@ class UserController {
 
     async updateUser(req: Request, res: Response) {
         try {
-            const userId = req.params.userId;
-            const { novaSenha, confirmNovaSenha } = req.body;
+            const { currentPassword, newPassword, confirmPassword } = req.body;
 
-            if (!userId) {
-                return res.status(400).json({ message: 'ID não fornecido.' });
-            }
-
-            if (!novaSenha || !confirmNovaSenha) {
+            if (!currentPassword || !newPassword || !confirmPassword) {
                 return res.status(400).json({ message: 'As senhas são obrigatórias. ' });
             }
 
-            userService.validatePassword(novaSenha, confirmNovaSenha);
+            userService.validatePassword(newPassword, confirmPassword);
 
-            if (req.user.id !== userId && !req.user.isAdmin) {
-                return res.status(403).json({ message: 'Você não possui autorização para editar o usuário.' });
-            }
+            const newToken = await userService.updateUser(req.user.id, currentPassword, newPassword);
 
-            await userService.updateUser(userId, novaSenha);
-
-            res.json({ message: 'Usuário atualizado com sucesso.' });
+            return res.status(200).json({ newToken });
         } catch (error) {
             console.error(error);
-            res.status(400).json({ message: error.message });
+            res.status(400).json({ message: 'Erro ao mudar a senha do usuário: ' + error.message });
+        }
+    }
+
+    async updateClientPassword(req: Request, res: Response) {
+        try {
+            const clientId = req.params.clientId;
+
+            if (!clientId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const { newPassword, confirmPassword } = req.body;
+
+            if (!newPassword || !confirmPassword) {
+                return res.status(400).json({ message: 'As senhas são obrigatórias. ' });
+            }
+
+            userService.validatePassword(newPassword, confirmPassword);
+
+            await userService.updateClientPassword(clientId, newPassword, confirmPassword);
+            res.status(200).json({ message: 'Senha atualizada com sucesso.' });
+
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ message: 'Erro ao mudar a senha do usuário: ' + error.message });
         }
     }
 

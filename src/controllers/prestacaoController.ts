@@ -266,6 +266,40 @@ class PrestacaoController {
         }
     }
 
+    async marcarPago(req: Request, res: Response) {
+        try {
+            const { prestacaoId } = req.body;
+
+            if (!prestacaoId) {
+                return res.status(400).json({ message: "ID não fornecido" });
+            }
+
+            await prestacaoService.marcarPago(prestacaoId);
+
+            return res.status(200).json({ message: 'Prestação atualizada com sucesso' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao gerar QrCode de pagamento da prestação: ' + error.message });
+        }
+    }
+
+    async marcarPendente(req: Request, res: Response) {
+        try {
+            const { prestacaoId } = req.body;
+
+            if (!prestacaoId) {
+                return res.status(400).json({ message: "ID não fornecido" });
+            }
+
+            await prestacaoService.marcarPendente(prestacaoId);
+
+            return res.status(200).json({ message: 'Prestação atualizada com sucesso' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Erro ao gerar QrCode de pagamento da prestação: ' + error.message });
+        }
+    }
+
 }
 
 export default PrestacaoController;

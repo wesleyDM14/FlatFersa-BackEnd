@@ -1,5 +1,6 @@
 import prismaClient from "../prisma";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
+import { generateAccessToken } from "./authService";
 
 class UserService {
 
@@ -54,6 +55,27 @@ class UserService {
         return users;
     }
 
+    async getLoggedUserInfo(userId: string) {
+        const user = await prismaClient.user.findUnique({ where: { id: userId } });
+
+        if (!user) {
+            throw new Error('Usuário não encontrado no Banco de Dados.');
+        }
+
+        if (user.isAdmin) {
+            let userAdmin = { name: 'Admin' };
+            return userAdmin;
+        } else {
+            let userClient = await prismaClient.cliente.findFirst({ where: { id: user.clientId } });
+
+            if (!userClient) {
+                throw new Error('Usuário Cliente não encontrado no Banco de Dados');
+            }
+
+            return userClient;
+        }
+    }
+
     async getUserById(userId: string) {
         //obter usuário pelo ID
         const user = await prismaClient.user.findFirst({ where: { id: userId } });
@@ -65,17 +87,44 @@ class UserService {
         return user;
     }
 
-    async updateUser(userId: string, novaSenha: string) {
+    async updateUser(userId: string, currentPassword: string, novaSenha: string) {
 
         const existingUser = await prismaClient.user.findUnique({ where: { id: userId } });
+
         if (!existingUser) {
             throw new Error('Usuário não encontrado.');
+        }
+
+        const passwordMatch = await compare(currentPassword, existingUser.password);
+
+        if (!passwordMatch) {
+            throw new Error('Senha atual não confere.');
         }
 
         const passwordHash = await hash(novaSenha, 8);
         novaSenha = passwordHash;
 
         await prismaClient.user.update({ where: { id: userId }, data: { password: novaSenha } });
+
+        //gerar um novo token
+        const accessToken = generateAccessToken(existingUser.id);
+        const isAdmin = existingUser.isAdmin;
+        return { accessToken, isAdmin };
+    }
+
+    async updateClientPassword(clientId: string, currentPassword: string, novaSenha: string) {
+
+        const existingClient = await prismaClient.cliente.findFirst({ where: { id: clientId } });
+
+        if (!existingClient) {
+            throw new Error('Cliente não encontrado.');
+        }
+
+        const existingUser = await prismaClient.user.findFirst({ where: { clientId: existingClient.id } });
+
+        const passwordHash = await hash(novaSenha, 8);
+
+        await prismaClient.user.update({ where: { id: existingUser.id }, data: { password: passwordHash } });
 
         return;
     }

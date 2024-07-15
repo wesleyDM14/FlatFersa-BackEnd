@@ -162,12 +162,10 @@ class ClienteService {
             //atualizar imagens
             let uploadedFiles = [clientExisting.documentoFrente, clientExisting.documentoVerso];
 
-            if (documentoFrente && documentoVerso) {
-                uploadedFiles = [];
-                const token = await getToken();
+            const token = await getToken();
 
+            if (documentoFrente) {
                 try {
-                    //upload document
                     const responseFront = await axios.post(
                         `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
                         fs.createReadStream(documentoFrente.path),
@@ -181,8 +179,15 @@ class ClienteService {
                     );
 
                     fs.unlinkSync(documentoFrente.path);
-                    uploadedFiles.push(responseFront.data.source_url);
+                    uploadedFiles[0] = responseFront.data.source_url;
 
+                } catch (err) {
+                    throw new Error('Error uploading files to WordPress. ' + err.message);
+                }
+            }
+
+            if (documentoVerso) {
+                try {
                     const responseBack = await axios.post(
                         `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
                         fs.createReadStream(documentoVerso.path),
@@ -196,8 +201,7 @@ class ClienteService {
                     );
 
                     fs.unlinkSync(documentoVerso.path);
-                    uploadedFiles.push(responseBack.data.source_url);
-
+                    uploadedFiles[1] = responseBack.data.source_url;
                 } catch (err) {
                     throw new Error('Error uploading files to WordPress. ' + err.message);
                 }

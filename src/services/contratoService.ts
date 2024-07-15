@@ -545,7 +545,7 @@ class ContratoService {
             throw new Error('Contrato não está em etapa de assinatura.');
         }
 
-        const uploadedFiles = [];
+        let linkContratoAssinado = '';
 
         try {
             const token = await getToken();
@@ -563,7 +563,7 @@ class ContratoService {
             );
 
             fs.unlinkSync(contratoAssinado.path);
-            uploadedFiles.push(response.data.source_url);
+            linkContratoAssinado = response.data.source_url;
         } catch (error) {
             throw new Error('Error uploading files to WordPress. ' + error.message);
         }
@@ -571,7 +571,7 @@ class ContratoService {
         await prismaClient.contrato.update({
             where: { id: contractExisting.id },
             data: {
-                linkPdfAssinado: uploadedFiles[0],
+                linkPdfAssinado: linkContratoAssinado,
                 assinado: true
             }
         });
