@@ -518,18 +518,20 @@ class ContratoService {
                     }
                 }
 
-                const clientUser = await prismaClient.user.findFirst({ where: { clientId: contractExisting.clientId } });
+                const clientUser = await prisma.user.findFirst({ where: { clientId: contractExisting.clientId } });
 
-                await prismaClient.avisos.create({
+                await prisma.avisos.create({
                     data: {
                         userId: clientUser.id,
                         title: 'Cancelamento de Contrato',
                         content: message,
                     }
                 });
-
-                return;
+            }, {
+                timeout: 60000
             });
+
+            return;
         } catch (error) {
             throw new Error('Erro ao Cancelar contrato: ' + error.message);
         }

@@ -9,7 +9,6 @@ import { verificaContratos } from "./functions/verificaContratos";
 import { clearDirectory } from "./functions/clearUploadsFolder";
 import { setupGracefulShutdown } from "./functions/shutdown";
 import prismaClient from "./prisma";
-import { hash } from "bcryptjs";
 
 import fs from 'fs';
 import path from 'path';
