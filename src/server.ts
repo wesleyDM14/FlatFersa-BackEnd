@@ -9,9 +9,19 @@ import { verificaContratos } from "./functions/verificaContratos";
 import { clearDirectory } from "./functions/clearUploadsFolder";
 import { setupGracefulShutdown } from "./functions/shutdown";
 import prismaClient from "./prisma";
+import { hash } from "bcryptjs";
+
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
+
+const uploadsDir = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
 
 //Middleware para analisar o corpo das solicitações como JSON
 app.use(express.json());

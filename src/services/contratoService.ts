@@ -435,8 +435,9 @@ class ContratoService {
                         content: `Sua solicitação de contrato foi aprovada, verifique na seção de contratos para poder assiná-lo e assim dar início a sua estadia.`,
                     }
                 });
-
                 return { contrato: contractExisting, prestacoes: parcelas };
+            }, {
+                timeout: 60000
             });
         } catch (error) {
             throw new Error('Erro ao cadastrar contrato: ' + error.message);
