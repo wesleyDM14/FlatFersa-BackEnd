@@ -20,7 +20,10 @@ const PORT = process.env.PORT || 3333;
 const uploadsDir = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Pasta uploads criada.');
+} else {
+    console.log('Pasta uploads já existe.');
 }
 
 app.use('/uploads', express.static(uploadsDir));
