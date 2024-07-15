@@ -23,6 +23,8 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
+app.use('/uploads', express.static(uploadsDir));
+
 //Middleware para analisar o corpo das solicitações como JSON
 app.use(express.json());
 
