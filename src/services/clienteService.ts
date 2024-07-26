@@ -182,12 +182,11 @@ class ClienteService {
                     uploadedFiles[0] = responseFront.data.source_url;
 
                 } catch (err) {
-                    throw new Error('Error uploading files to WordPress. ' + err);
+                    throw new Error('Error uploading files to WordPress. ' + err.message);
                 }
             }
 
             if (documentoVerso) {
-                console.log(documentoVerso);
                 try {
                     const responseBack = await axios.post(
                         `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,
