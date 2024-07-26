@@ -187,6 +187,7 @@ class ClienteService {
             }
 
             if (documentoVerso) {
+                console.log(documentoVerso);
                 try {
                     const responseBack = await axios.post(
                         `${process.env.WORDPRESS_URL}/wp-json/wp/v2/media`,

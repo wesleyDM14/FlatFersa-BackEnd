@@ -8,6 +8,7 @@ const getToken = async () => {
         });
 
         const token = response.data.token;
+        console.log(token);
         return token;
     } catch (error) {
         console.error('Erro ao obter token:', error.response.data);
