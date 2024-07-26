@@ -182,7 +182,7 @@ class ClienteService {
                     uploadedFiles[0] = responseFront.data.source_url;
 
                 } catch (err) {
-                    throw new Error('Error uploading files to WordPress. ' + err.message);
+                    throw new Error('Error uploading files to WordPress. ' + err);
                 }
             }
 
