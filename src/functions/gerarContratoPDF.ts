@@ -182,7 +182,7 @@ export async function gerarContratoPDF(contratoId: string, userId: string, dataC
 
         doc.font('Times-Roman').fontSize(12).text('LOCADOR:', 70, doc.y);
 
-        const imageUrl = 'https://flatfersa.escritoriooffset.com.br/wp-content/uploads/2024/07/assinatura-1.png';
+        const imageUrl = 'https://flatfersa.com.br/wp-content/uploads/2024/10/assinatura.png';
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'base64');
 
