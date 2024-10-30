@@ -178,7 +178,7 @@ model Avisos {
   createdAt DateTime @default(now())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 //Enum para representar os status do Contrato (ativo, cancelado ou encerrado)
