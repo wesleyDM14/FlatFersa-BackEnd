@@ -238,13 +238,23 @@ class ClienteService {
 
         const existingUser = await prismaClient.user.findFirst({ where: { clientId: clientId } });
 
-        try {
-            await prismaClient.$transaction(async (prisma) => {
-                await prisma.cliente.delete({ where: { id: clientId } });
-                await prisma.user.delete({ where: { id: existingUser.id } });
-            });
-        } catch (error) {
-            throw new Error('Erro ao excluir cliente e usuário: ' + error.message);
+        if (existingUser) {
+            try {
+                await prismaClient.$transaction(async (prisma) => {
+                    await prisma.cliente.delete({ where: { id: clientId } });
+                    await prisma.user.delete({ where: { id: existingUser.id } });
+                });
+            } catch (error) {
+                throw new Error('Erro ao excluir cliente e usuário: ' + error.message);
+            }
+        } else {
+            try {
+                await prismaClient.$transaction(async (prisma) => {
+                    await prisma.cliente.delete({ where: { id: clientId } });
+                });
+            } catch (error) {
+                throw new Error('Erro ao excluir cliente: ' + error.message);
+            }
         }
 
         return;
