@@ -121,7 +121,7 @@ model User {
 
   //Relacionamento com a tabela Cliente
   clientId String?
-  Client   Cliente? @relation(fields: [clientId], references: [id])
+  Client   Cliente? @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   Avisos Avisos[]
 }

@@ -241,8 +241,8 @@ class ClienteService {
         if (existingUser) {
             try {
                 await prismaClient.$transaction(async (prisma) => {
-                    await prisma.cliente.delete({ where: { id: clientId } });
                     await prisma.user.delete({ where: { id: existingUser.id } });
+                    await prisma.cliente.delete({ where: { id: clientId } });
                 });
             } catch (error) {
                 throw new Error('Erro ao excluir cliente e usuário: ' + error.message);
