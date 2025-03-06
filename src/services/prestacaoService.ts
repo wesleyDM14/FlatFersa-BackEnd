@@ -174,7 +174,12 @@ class PrestacaoService {
 
             let leituraAtual = contratoByPrestacao.leituraAtual;
             let consumoKWh = novaLeitura - leituraAtual;
-            let valorAdicional = consumoKWh * predioApt.kwhPrice;
+            let valorAdicional = 0;
+
+            if (consumoKWh > contratoByPrestacao.limiteKwh) {
+                let excesso = consumoKWh - contratoByPrestacao.limiteKwh;
+                valorAdicional = excesso * predioApt.kwhPrice;
+            }
 
             try {
                 await prismaClient.$transaction(async (prisma) => {

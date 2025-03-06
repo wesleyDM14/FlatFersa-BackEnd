@@ -380,12 +380,13 @@ class ContratoService {
                 let dataVencimento = new Date(contractExisting.dataInicio);
                 dataVencimento.setDate(contractExisting.diaVencimentoPagamento);
 
+
                 let parcelas = [];
 
                 for (let index = 0; index <= contractExisting.duracaoContrato; index++) {
                     let dataAux = dataVencimento;
                     dataAux = addMonths(dataVencimento, index);
-                    let mesReferencia = dataVencimento.getMonth() + 1;
+                    let mesReferencia = dataAux.getMonth() + 1;
                     let tipoPagamento = null;
                     if (index === 0) {
                         tipoPagamento = TipoPagamento.CALCAO;
@@ -395,6 +396,7 @@ class ContratoService {
                     } else {
                         tipoPagamento = TipoPagamento.ALUGUEL;
                     }
+                    
                     let aux = await prisma.prestacaoAluguel.create({
                         data: {
                             contractId: contractExisting.id,

@@ -12,6 +12,7 @@ import prismaClient from "./prisma";
 
 import fs from 'fs';
 import path from 'path';
+import 'dotenv/config';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
