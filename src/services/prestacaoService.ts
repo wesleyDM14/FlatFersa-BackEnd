@@ -367,22 +367,25 @@ class PrestacaoService {
 
     async marcarPago(prestacaoId: string) {
         try {
-            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({
+                where: { id: prestacaoId }
+            });
 
             if (!prestacaoExisting) {
-                throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+                throw new Error('Prestação de aluguel não encontrada no banco de dados.');
             }
 
             await prismaClient.prestacaoAluguel.update({
                 where: { id: prestacaoId },
                 data: {
-                    statusPagamento: StatusPagamento.PAGO
+                    statusPagamento: StatusPagamento.PAGO,
+                    dataPagamento: new Date()  // Aqui você define a data de pagamento
                 }
             });
 
             return;
         } catch (error) {
-            throw new Error('Erro marcar prestação como paga:  ' + error.message);
+            throw new Error('Erro ao marcar prestação como paga: ' + error.message);
         }
     }
 

@@ -13,6 +13,7 @@ import ContratoController from './controllers/contratoController';
 import PrestacaoController from './controllers/prestacaoController';
 import AvisoController from './controllers/avisoController';
 import uploadContratoAssinado from './middlewares/uploadContratoMiddleware';
+import DashboardController from './controllers/dashboardController';
 
 const router = Router();
 const userController = new UserController();
@@ -22,6 +23,7 @@ const clienteController = new ClienteController();
 const contratoController = new ContratoController();
 const prestacaoController = new PrestacaoController();
 const avisoController = new AvisoController();
+const dashboardController = new DashboardController();
 
 //rota de autenticação
 router.post('/login', AuthController.login);
@@ -102,5 +104,9 @@ router.get('/avisos/:userId', authenticateUser, isAdmin, avisoController.getAvis
 router.get('/avisos/user/', authenticateUser, avisoController.getAvisosByUserLoggedIn.bind(avisoController));
 router.put('/avisos/:avisoId', authenticateUser, avisoController.updateAviso.bind(avisoController));
 router.delete('/avisos/:avisoId', authenticateUser, avisoController.deleteAviso.bind(avisoController));
+
+//Rotas para dashboard
+router.get('/dashboard/admin', authenticateUser, isAdmin, dashboardController.getDashboardAdmin.bind(dashboardController));
+router.get('/dashboard/client', authenticateUser, dashboardController.getDashboardClient.bind(dashboardController));
 
 export { router };

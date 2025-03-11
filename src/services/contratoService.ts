@@ -127,7 +127,7 @@ class ContratoService {
             const currentClient = await prismaClient.cliente.findFirst({ where: { id: element.clientId } });
             const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
             const currentPredio = await prismaClient.predio.findFirst({ where: { id: currentApt.id_predio } });
-            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
+            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id }, orderBy: {dataVencimento: 'asc'} });
             let aux = { contrato: element, cliente: currentClient, apartamento: currentApt, financeiro: parcelas, predio: currentPredio };
             response.push(aux);
         }
