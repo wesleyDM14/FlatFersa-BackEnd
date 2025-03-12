@@ -5,6 +5,10 @@ import { hash } from "bcryptjs";
 
 import getToken from "../functions/getToken";
 import { StatusCliente } from "@prisma/client";
+import { EmailService } from "../functions/emailService";
+import { EmailTemplates } from "../functions/email-templates";
+
+const emailService = new EmailService();
 
 class ClienteService {
 
@@ -108,6 +112,13 @@ class ClienteService {
                             clientId: newClient.id
                         }
                     });
+
+                    await emailService.sendEmail({
+                        to: email,
+                        subject: '✅ Acesso Liberado - Sua Conta Está Pronta!',
+                        html: EmailTemplates.ACESSO_LIBERADO(name, email, 'https://app.flatfersa.com/login'),
+                    });
+
                     return { cliente: newClient, user: newUser }
                 });
             } catch (error) {

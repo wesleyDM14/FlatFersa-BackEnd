@@ -7,6 +7,10 @@ import { hash } from "bcryptjs";
 
 import getToken from "../functions/getToken";
 import { StatusCliente } from "@prisma/client";
+import { EmailService } from "../functions/emailService";
+import { EmailTemplates } from "../functions/email-templates";
+
+const emailService = new EmailService();
 
 //Função para gerar um token de acesso
 export const generateAccessToken = (userID: string): string => {
@@ -132,7 +136,17 @@ export const solicitarAcessoCliente = async (name: string, cpf: string, rg: stri
             }
         });
 
-        //feedback?
+        await emailService.sendEmail({
+            to: email,
+            subject: '📨 Solicitação Recebida - Análise em Andamento',
+            html: EmailTemplates.SOLICITACAO_RECEBIDA(name),
+        });
+
+        await emailService.sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: '⚠️ Nova Solicitação Requer Análise',
+            html: EmailTemplates.NOVA_SOLICITACAO_ADMIN(name),
+        });
 
         return { cliente: newClientSolicitacao }
 
@@ -172,7 +186,11 @@ export const aprovarAcessoCliente = async (clientId: string) => {
                     }
                 });
 
-                //feedback?
+                await emailService.sendEmail({
+                    to: existingClient.email,
+                    subject: '✅ Acesso Liberado - Sua Conta Está Pronta!',
+                    html: EmailTemplates.ACESSO_LIBERADO(existingClient.name, existingClient.email, 'https://app.flatfersa.com/login'),
+                });
 
                 return { user: newUser }
             });

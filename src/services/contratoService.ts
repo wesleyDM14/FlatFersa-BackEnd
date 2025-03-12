@@ -5,6 +5,10 @@ import { PeriodicidadeContrato, StatusApartamento, StatusContrato, StatusPagamen
 import getToken from "../functions/getToken";
 import fs from 'fs';
 import axios from "axios";
+import { EmailService } from "../functions/emailService";
+import { EmailTemplates } from "../functions/email-templates";
+
+const emailService = new EmailService();
 
 class ContratoService {
 
@@ -127,7 +131,7 @@ class ContratoService {
             const currentClient = await prismaClient.cliente.findFirst({ where: { id: element.clientId } });
             const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
             const currentPredio = await prismaClient.predio.findFirst({ where: { id: currentApt.id_predio } });
-            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id }, orderBy: {dataVencimento: 'asc'} });
+            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id }, orderBy: { dataVencimento: 'asc' } });
             let aux = { contrato: element, cliente: currentClient, apartamento: currentApt, financeiro: parcelas, predio: currentPredio };
             response.push(aux);
         }
@@ -359,6 +363,22 @@ class ContratoService {
                 })
             );
 
+            await emailService.sendEmail({
+                to: process.env.ADMIN_EMAIL,
+                subject: `Nova Solicitação de Contrato`,
+                html: EmailTemplates.ADMIN_NOVO_CONTRATO(
+                    clientExisting.name,
+                )
+            });
+
+            await emailService.sendEmail({
+                to: clientExisting.email,
+                subject: "Solicitação de Contrato Recebida",
+                html: EmailTemplates.CLIENTE_AGUARDANDO_APROVACAO(
+                    clientExisting.name
+                )
+            });
+
             return newContrato;
 
         } catch (error) {
@@ -368,7 +388,17 @@ class ContratoService {
     }
 
     async aprovarContrato(contratoId: string, valorAluguel: number, periocidade: PeriodicidadeContrato, limiteKwh: number, leituraInicial: number) {
-        const contractExisting = await prismaClient.contrato.findFirst({ where: { id: contratoId } });
+        const contractExisting = await prismaClient.contrato.findFirst({
+            where: { id: contratoId },
+            include: {
+                cliente: {
+                    select: {
+                        email: true,
+                        name: true
+                    }
+                }
+            }
+        });
 
         if (!contractExisting) {
             throw new Error('Contrato não encontrado no Banco de Dados.');
@@ -396,7 +426,7 @@ class ContratoService {
                     } else {
                         tipoPagamento = TipoPagamento.ALUGUEL;
                     }
-                    
+
                     let aux = await prisma.prestacaoAluguel.create({
                         data: {
                             contractId: contractExisting.id,
@@ -437,6 +467,15 @@ class ContratoService {
                         content: `Sua solicitação de contrato foi aprovada, verifique na seção de contratos para poder assiná-lo e assim dar início a sua estadia.`,
                     }
                 });
+
+                await emailService.sendEmail({
+                    to: contractExisting.cliente.email,
+                    subject: `Contrato Aprovado!`,
+                    html: EmailTemplates.CLIENTE_CONTRATO_APROVADO(
+                        contractExisting.cliente.name,
+                    )
+                });
+
                 return { contrato: contractExisting, prestacoes: parcelas };
             }, {
                 timeout: 60000
