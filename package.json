@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "migrate": "prisma migrate deploy",
-    "postinstall": "mkdir -p uploads"
+    "postinstall": "mkdir -p uploads",
+    "notify": "node dist/functions/scriptNotify.js"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

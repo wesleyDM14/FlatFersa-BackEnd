@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -89,19 +89,24 @@ model Contrato {
 
 //Definicao da tabela PrestacaoAluguel
 model PrestacaoAluguel {
-  id                String          @id @default(uuid())
-  mesReferencia     Int //Mes da prestacao de aluguel
-  valor             Float //Valor do alugel
-  dataVencimento    DateTime
-  dataPagamento     DateTime?
-  statusPagamento   StatusPagamento @default(PENDENTE) //Status do pagamento (enum)
-  consumoKWh        Int             @default(0) //Quantidade de KWh consumida no mês
-  valorExcedenteKWh Float? //Valor do excedente de KWh a ser cobrado
-  multa             Float?          @default(0)
-  tipo              TipoPagamento   @default(ALUGUEL)
-  linkComprovante   String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id                 String          @id @default(uuid())
+  mesReferencia      Int //Mes da prestacao de aluguel
+  valor              Float //Valor do alugel
+  dataVencimento     DateTime
+  dataPagamento      DateTime?
+  statusPagamento    StatusPagamento @default(PENDENTE) //Status do pagamento (enum)
+  consumoKWh         Int             @default(0) //Quantidade de KWh consumida no mês
+  valorExcedenteKWh  Float? //Valor do excedente de KWh a ser cobrado
+  multa              Float?          @default(0)
+  tipo               TipoPagamento   @default(ALUGUEL)
+  linkComprovante    String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  notificadoAdminEm  DateTime?
+  tentativasAdmin    Int             @default(0)
+  notificadoClientEm DateTime?
+  tentativasClient   Int             @default(0)
+  notificacaoStatus  String?         @default("PENDENTE")
 
   //Relacionamento com a tabela Contrato
   contractId String

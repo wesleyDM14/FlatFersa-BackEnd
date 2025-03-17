@@ -73,9 +73,17 @@ async function aplicarMulta() {
     }
 }
 
+async function notificaParcelas() {
+    try {
+        
+    } catch (error) {
+        console.error('Erro ao notificar: ' + error.message);
+    }
+}
+
 const job = new CronJob('0 0 * * *', verificaPrestacoesEmAtraso);
 const jobMulta = new CronJob('0 0 * * *', aplicarMulta);
 job.start();
 jobMulta.start();
 
-export { verificaPrestacoesEmAtraso, aplicarMulta }
+export { verificaPrestacoesEmAtraso, aplicarMulta, notificaParcelas }
