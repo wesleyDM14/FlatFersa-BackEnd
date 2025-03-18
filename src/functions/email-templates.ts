@@ -282,4 +282,109 @@ export const EmailTemplates = {
     "Leitura de Energia Pendente!",
     "Notificação Automática - Sistema de Monitoramento"
   ),
+  CLIENTE_AGUARDANDO_CONFIRMACAO: (clientName: string, dueDate: string, amount: number) =>
+    baseTemplate(
+      `<div style="color: #4a5568;">
+        <div style="text-align: center; margin: 25px 0;">
+          <div style="display: inline-block; background-color: #f6ad55; color: white; 
+               padding: 10px 20px; border-radius: 20px; font-size: 14px;">
+            Pagamento em Análise 🔍
+          </div>
+        </div>
+
+        <p>Olá <strong>${clientName}</strong>,</p>
+        
+        <p>Recebemos seu comprovante de pagamento referente à parcela de <strong>${dueDate}</strong> no valor de <strong>R$ ${amount.toFixed(2)}</strong>.</p>
+
+        <div style="background-color: #fffaf0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 5px 0; color: #dd6b20;">
+            Status atual: <strong>Em análise pela equipe</strong>
+          </p>
+          <p style="margin: 5px 0; color: #718096;">
+            Prazo estimado: 48 horas úteis
+          </p>
+        </div>
+
+        <p>Você receberá uma confirmação por e-mail assim que concluirmos a análise.</p>
+      </div>`,
+      `Comprovante Recebido, ${clientName}!`,
+      "Atenciosamente, Equipe Financeira"
+    ),
+
+  ADMIN_NOVO_COMPROVANTE: (clientName: string, amount: number, adminLink: string) =>
+    baseTemplate(
+      `<div style="color: #4a5568;">
+        <h2 style="color: #2d3748; margin-top: 0;">Novo Comprovante Recebido!</h2>
+        
+        <div style="border-left: 4px solid #4299e1; padding-left: 15px; margin: 20px 0;">
+          <p style="margin: 5px 0;">
+            👤 Cliente: <strong>${clientName}</strong><br>
+            💰 Valor: R$ ${amount.toFixed(2)}<br>
+            📅 Data Envio: ${new Date().toLocaleDateString('pt-BR')}
+          </p>
+        </div>
+
+        <a href="${adminLink}" 
+           style="display: inline-block; background-color: #4299e1; color: white; 
+                  padding: 12px 24px; border-radius: 6px; text-decoration: none;">
+          Ver Comprovante
+        </a>
+
+        <p style="margin-top: 25px; color: #718096;">
+          Prazo máximo para análise: 48 horas úteis
+        </p>
+      </div>`,
+      "Novo Comprovante para Análise",
+      "Notificação Automática - Sistema de Pagamentos"
+    ),
+
+  CLIENTE_PAGAMENTO_CONFIRMADO: (clientName: string, dueDate: string, amount: number) =>
+    baseTemplate(
+      `<div style="color: #4a5568;">
+        <div style="text-align: center; margin: 25px 0;">
+          <div style="display: inline-block; background-color: #48bb78; color: white; 
+               padding: 10px 20px; border-radius: 20px; font-size: 14px;">
+            Pagamento Confirmado ✅
+          </div>
+        </div>
+
+        <p>Olá <strong>${clientName}</strong>,</p>
+        
+        <div style="background-color: #f0fff4; padding: 20px; border-radius: 8px;">
+          <p style="margin: 5px 0;">
+            Parcela: <strong>${dueDate}</strong><br>
+            Valor: <strong>R$ ${amount.toFixed(2)}</strong><br>
+            Status: <strong style="color: #38a169;">Confirmado</strong>
+          </p>
+        </div>
+
+        <p style="margin-top: 25px;">Obrigado por manter seus pagamentos em dia! 🎉</p>
+      </div>`,
+      `Pagamento Confirmado, ${clientName}!`,
+      "Atenciosamente, Departamento Financeiro"
+    ),
+
+  CLIENTE_PAGAMENTO_REPROVADO: (clientName: string, dueDate: string, reason: string) =>
+    baseTemplate(
+      `<div style="color: #4a5568;">
+        <div style="text-align: center; margin: 25px 0;">
+          <div style="display: inline-block; background-color: #f56565; color: white; 
+               padding: 10px 20px; border-radius: 20px; font-size: 14px;">
+            Pagamento Requer Ajustes ⚠️
+          </div>
+        </div>
+
+        <p>Olá <strong>${clientName}</strong>,</p>
+        
+        <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px;">
+          <p style="margin: 5px 0; color: #c53030;">
+            Parcela: <strong>${dueDate}</strong><br>
+            Status: <strong>Reprovado</strong><br>
+            Motivo: ${reason}
+          </p>
+        </div>
+      </div>`,
+      `Atenção: Pagamento Reprovado - ${dueDate}`,
+      "Atenciosamente, Equipe Financeira"
+    )
 };

@@ -6,7 +6,10 @@ import getToken from "../functions/getToken";
 import axios from "axios";
 import fs from 'fs';
 import { verificaPrestacoesEmAtraso } from "../functions/verificaPrestacaoService";
+import { EmailService } from "../functions/emailService";
+import { EmailTemplates } from "../functions/email-templates";
 
+const emailService = new EmailService();
 class PrestacaoService {
 
     async createPrestacao(mesReferencia: number, valor: number, dataVencimento: Date, contratoId: string) {
@@ -211,7 +214,12 @@ class PrestacaoService {
     }
 
     async registrarPagamento(prestacaoId: string, comprovante: Express.Multer.File) {
-        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findUnique({
+            where: { id: prestacaoId },
+            include: {
+                Contract: { include: { cliente: true } }
+            }
+        });
 
         if (!prestacaoExisting) {
             throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
@@ -258,11 +266,40 @@ class PrestacaoService {
             }
         });
 
+        const valorTotal = prestacaoExisting.valor + prestacaoExisting.multa + prestacaoExisting.valorExcedenteKWh;
+
+        await emailService.sendEmail({
+            to: prestacaoExisting.Contract.cliente.email,
+            subject: `Comprovante Recebido - ${prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR')}`,
+            html: EmailTemplates.CLIENTE_AGUARDANDO_CONFIRMACAO(
+                prestacaoExisting.Contract.cliente.name,
+                prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR'),
+                valorTotal
+            )
+        });
+
+        const adminLink = `https://app.flatfersa.com.br/prestacao/${prestacaoId}`;
+
+        await emailService.sendEmail({
+            to: process.env.ADMIN_EMAIL,
+            subject: `Novo Comprovante - ${prestacaoExisting.Contract.cliente.name}`,
+            html: EmailTemplates.ADMIN_NOVO_COMPROVANTE(
+                prestacaoExisting.Contract.cliente.name,
+                valorTotal,
+                adminLink
+            )
+        });
+
         return;
     }
 
     async aprovaPagamento(prestacaoId: string) {
-        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findUnique({
+            where: { id: prestacaoId },
+            include: {
+                Contract: { include: { cliente: true } }
+            }
+        });
 
         if (!prestacaoExisting) {
             throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
@@ -281,6 +318,18 @@ class PrestacaoService {
                     statusPagamento: StatusPagamento.PAGO
                 }
             });
+
+            const valorTotal = prestacaoExisting.valor + prestacaoExisting.multa + prestacaoExisting.valorExcedenteKWh;
+
+            await emailService.sendEmail({
+                to: prestacaoExisting.Contract.cliente.email,
+                subject: `Pagamento Confirmado - ${prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR')}`,
+                html: EmailTemplates.CLIENTE_PAGAMENTO_CONFIRMADO(
+                    prestacaoExisting.Contract.cliente.name,
+                    prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR'),
+                    valorTotal
+                )
+            });
         } else {
             throw new Error('Prestação de aluguel não consta como paga.');
         }
@@ -289,7 +338,12 @@ class PrestacaoService {
     }
 
     async reprovarPagamento(prestacaoId: string) {
-        const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+        const prestacaoExisting = await prismaClient.prestacaoAluguel.findUnique({
+            where: { id: prestacaoId },
+            include: {
+                Contract: { include: { cliente: true } }
+            }
+        });
 
         if (!prestacaoExisting) {
             throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
@@ -307,6 +361,16 @@ class PrestacaoService {
                 statusPagamento: StatusPagamento.PENDENTE,
                 linkComprovante: null
             }
+        });
+
+        await emailService.sendEmail({
+            to: prestacaoExisting.Contract.cliente.email,
+            subject: `Pagamento Reprovado - ${prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR')}`,
+            html: EmailTemplates.CLIENTE_PAGAMENTO_REPROVADO(
+                prestacaoExisting.Contract.cliente.name,
+                prestacaoExisting.dataVencimento.toLocaleDateString('pt-BR'),
+                'Comprovante Inválido'
+            )
         });
 
         verificaPrestacoesEmAtraso();
