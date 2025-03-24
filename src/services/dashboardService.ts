@@ -79,7 +79,7 @@ class DashboardService {
         const faturamentoPorMes = Array(12).fill(0);
 
         prestacoes.forEach(({ dataPagamento, valor, valorExcedenteKWh, multa }) => {
-            const mesPagamento = dataPagamento.getMonth();
+            const mesPagamento = new Date(dataPagamento).getMonth();
             faturamentoPorMes[mesPagamento] += valor + (valorExcedenteKWh || 0) + (multa || 0);
         });
 
