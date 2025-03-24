@@ -37,6 +37,13 @@ class PrestacaoService {
 
     async getAllPrestacoes() {
         const prestacoes = await prismaClient.prestacaoAluguel.findMany({
+            include: {
+                Contract: {
+                    include: {
+                        cliente: true,
+                    }
+                }
+            },
             orderBy: { dataVencimento: "asc" }
         });
         return prestacoes;
@@ -263,6 +270,7 @@ class PrestacaoService {
             data: {
                 statusPagamento: StatusPagamento.AGUARDANDO,
                 linkComprovante: uploadedFileUrl,
+                dataPagamento: new Date(),
             }
         });
 

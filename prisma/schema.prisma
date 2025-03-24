@@ -40,7 +40,7 @@ model Apartamento {
 
   // Relacionamento com a tabela Predio
   id_predio String
-  predio    Predio @relation(fields: [id_predio], references: [id])
+  predio    Predio @relation(fields: [id_predio], references: [id], onDelete: Cascade)
 
   //Relacionamento com a tabela Contrato
   contratos Contrato[]
@@ -82,10 +82,6 @@ model Contrato {
   //Relacionamento com a tabela PresacaoAluguel
   prestacaoAluguel PrestacaoAluguel[]
 }
-
-//PIX DE PAGAMENTO ONLINE
-//(84)999381079
-//SICRED - Anael Antonio Nunes da Costa
 
 //Definicao da tabela PrestacaoAluguel
 model PrestacaoAluguel {

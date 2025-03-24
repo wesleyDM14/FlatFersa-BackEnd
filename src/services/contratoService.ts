@@ -118,7 +118,21 @@ class ContratoService {
     }
 
     async getAllContratos() {
-        const contratos = await prismaClient.contrato.findMany();
+        const contratos = await prismaClient.contrato.findMany({
+            include: {
+                cliente: true,
+                apt: {
+                    include: {
+                        predio: true
+                    }
+                },
+                prestacaoAluguel: {
+                    orderBy: {
+                        dataVencimento: 'asc'
+                    }
+                }
+            }
+        });
         return contratos;
     }
 
@@ -163,20 +177,22 @@ class ContratoService {
             throw new Error('Cliente não encontrado no Banco de Dados.');
         }
 
-        const contracts = await prismaClient.contrato.findMany({ where: { clientId: clientAlreadyExisting.id } });
+        const contracts = await prismaClient.contrato.findMany({
+            where: { clientId: clientAlreadyExisting.id },
+            include: {
+                apt: {
+                    include: {
+                        predio: true,
+                    },
+                },
+                cliente: true,
+                prestacaoAluguel: {
+                    orderBy: { dataVencimento: 'asc' }
+                }
+            }
+        });
 
-        const response = [];
-
-        for (let index = 0; index < contracts.length; index++) {
-            const element = contracts[index];
-            const currentApt = await prismaClient.apartamento.findFirst({ where: { id: element.aptId } });
-            const currentPredio = await prismaClient.predio.findFirst({ where: { id: currentApt.id_predio } });
-            const parcelas = await prismaClient.prestacaoAluguel.findMany({ where: { contractId: element.id } });
-            let aux = { contrato: element, cliente: clientAlreadyExisting, apartamento: currentApt, financeiro: parcelas, predio: currentPredio };
-            response.push(aux);
-        }
-
-        return response;
+        return contracts;
     }
 
     async updateContrato(contratoId: string, novoStatus: StatusContrato, novaDuracao: number, periodicidadeReajuste: PeriodicidadeContrato) {

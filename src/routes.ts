@@ -42,7 +42,6 @@ router.delete('/predios/:predioId', authenticateUser, isAdmin, predioController.
 router.post('/apartamentos', authenticateUser, isAdmin, apartamentoController.createApartamento.bind(apartamentoController));
 router.get('/apartamentos', authenticateUser, apartamentoController.getApartamentos.bind(apartamentoController));
 router.get('/apartamentos/predio/:predioId', authenticateUser, apartamentoController.getApartamentosByPredioId.bind(apartamentoController));
-router.get('/apartamentos-infos', authenticateUser, isAdmin, apartamentoController.getApartamentosWithInfos.bind(apartamentoController));
 router.get('/apartamentos/:apartamentoId', authenticateUser, apartamentoController.getApartamentoById.bind(apartamentoController));
 router.put('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartamentoController.updateApartamento.bind(apartamentoController));
 router.delete('/apartamentos/:apartamentoId', authenticateUser, isAdmin, apartamentoController.deleteApartamento.bind(apartamentoController));

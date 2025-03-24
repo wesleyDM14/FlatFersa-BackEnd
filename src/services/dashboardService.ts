@@ -43,6 +43,8 @@ class DashboardService {
             select: {
                 id: true,
                 valor: true,
+                multa: true,
+                valorExcedenteKWh: true,
                 dataPagamento: true,
                 statusPagamento: true,
                 Contract: {
@@ -98,7 +100,7 @@ class DashboardService {
                 id: activity.id,
                 contrato: activity.Contract?.id || "Desconhecido",
                 cliente: activity.Contract?.cliente?.name || "Desconhecido",
-                valor: activity.valor,
+                valor: activity.valor + activity.multa + activity.valorExcedenteKWh,
                 data: activity.dataPagamento,
                 status: activity.statusPagamento
             })),

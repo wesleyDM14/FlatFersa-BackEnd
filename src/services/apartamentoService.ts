@@ -48,6 +48,9 @@ class ApartamentoService {
         const apartamentos = await prismaClient.apartamento.findMany({
             orderBy: {
                 numero: "asc"
+            },
+            include: {
+                predio: true
             }
         });
         return apartamentos;
@@ -68,23 +71,6 @@ class ApartamentoService {
             }
         });
         return apartamentos;
-    }
-
-    async getApartamentosWithInfos() {
-        const apartamentos = await prismaClient.apartamento.findMany({
-            orderBy: {
-                numero: "asc"
-            }
-        });
-        const response = [];
-
-        for (let index = 0; index < apartamentos.length; index++) {
-            const apt = apartamentos[index];
-            const predio = await prismaClient.predio.findFirst({ where: { id: apt.id_predio } });
-            let aux = { apartamento: apt, predio: predio };
-            response.push(aux);
-        }
-        return response;
     }
 
     async getApartamentoById(apartamentoId: string) {

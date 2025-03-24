@@ -35,16 +35,6 @@ class ApartamentoController {
         }
     }
 
-    async getApartamentosWithInfos(req: Request, res: Response) {
-        try {
-            const apartamentos = await apartamentoService.getApartamentosWithInfos();
-            return res.json(apartamentos);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: error.message });
-        }
-    }
-
     async getApartamentosByPredioId(req: Request, res: Response) {
         try {
             const predioId = req.params.predioId;
