@@ -225,7 +225,7 @@ class ClienteService {
                     name: name,
                     cpf: cpf,
                     rg: rg,
-                    dateBirth: dateBirth,
+                    dateBirth: new Date(dateBirth),
                     phone: phone,
                     address: address,
                     documentoFrente: uploadedFiles[0],
