@@ -270,6 +270,58 @@ class ClienteService {
 
         return;
     }
+
+    async getDocumentFrente(clientId: string) {
+        const client = await prismaClient.cliente.findUnique({
+            where: { id: clientId },
+        });
+
+        if (!client || !client.documentoFrente) {
+            throw new Error("Cliente nao encontrado.");
+        }
+
+        const token = await getToken();
+
+        const response = await axios.get(client.documentoFrente, {
+            responseType: "stream",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'User-Agent': 'MyBackend'
+            }
+        });
+
+        return {
+            stream: response.data,
+            contentType: response.headers["content-type"],
+            fileName: "documentoFrente." + client.documentoFrente.split('.').pop()?.split('?')[0],
+        }
+    }
+
+    async getDocumentVerso(clientId: string) {
+        const client = await prismaClient.cliente.findUnique({
+            where: { id: clientId },
+        });
+
+        if (!client || !client.documentoVerso) {
+            throw new Error("Cliente nao encontrado.");
+        }
+
+        const token = getToken();
+
+        const response = await axios.get(client.documentoVerso, {
+            responseType: "stream",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'User-Agent': 'MyBackend'
+            }
+        });
+
+        return {
+            stream: response.data,
+            contentType: response.headers["content-type"],
+            fileName: "documentoVerso." + client.documentoVerso.split('.').pop()?.split('?')[0],
+        }
+    }
 }
 
 export default ClienteService;

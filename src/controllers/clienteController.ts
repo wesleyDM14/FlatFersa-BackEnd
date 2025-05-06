@@ -104,6 +104,42 @@ class ClienteController {
             res.status(400).json({ message: error.message });
         }
     }
+
+    async getDocumentoFrente(req: Request, res: Response) {
+        try {
+            const clientId = req.params.clientId;
+
+            if (!clientId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const { stream, contentType, fileName } = await clienteService.getDocumentFrente(clientId);
+            res.setHeader("Content-Type", contentType);
+            res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+            stream.pipe(res);
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getDocumentoVerso(req: Request, res: Response) {
+        try {
+            const clientId = req.params.clientId;
+
+            if (!clientId) {
+                return res.status(400).json({ message: 'ID não fornecido.' });
+            }
+
+            const { stream, contentType, fileName } = await clienteService.getDocumentVerso(clientId);
+            res.setHeader("Content-Type", contentType);
+            res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+            stream.pipe(res);
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ message: error.message });
+        }
+    }
 }
 
 export default ClienteController;

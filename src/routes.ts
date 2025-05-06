@@ -59,6 +59,8 @@ router.delete('/users/:userId', authenticateUser, isAdmin, userController.delete
 router.post('/clients', authenticateUser, isAdmin, uploadFieldsClient, clienteController.createClient.bind(clienteController));
 router.get('/clients', authenticateUser, isAdmin, clienteController.getAllClients.bind(clienteController));
 router.get('/clients/:clientId', authenticateUser, clienteController.getClientById.bind(clienteController));
+router.get('/cliente/documentoFrente/:clientId', authenticateUser, clienteController.getDocumentoFrente.bind(clienteController));
+router.get('/cliente/documentoVerso/:clientId', authenticateUser, clienteController.getDocumentoVerso.bind(clienteController));
 router.put('/clients/:clientId', authenticateUser, uploadFieldsClient, clienteController.updateClient.bind(clienteController));
 router.delete('/clients/:clientId', authenticateUser, isAdmin, clienteController.deleteClient.bind(clienteController));
 
@@ -87,6 +89,7 @@ router.get('/aluguel/infos/:prestacaoId', authenticateUser, prestacaoController.
 router.get('/aluguel/contrato/:contratoId', authenticateUser, prestacaoController.getPrestacoesByContratoId.bind(prestacaoController));
 router.get('/aluguel-cliente', authenticateUser, prestacaoController.getPrestacaoByUserId.bind(prestacaoController));
 router.get('/aluguel/mes/:mesReferencia', authenticateUser, isAdmin, prestacaoController.getPrestacoesByMouth.bind(prestacaoController));
+router.get('/linkAluguel/:parcelaId', authenticateUser, prestacaoController.getComprovante.bind(prestacaoController));
 router.put('/aluguel/:prestacaoId', authenticateUser, isAdmin, prestacaoController.updatePrestacao.bind(prestacaoController));
 router.put('/aluguel/pagamento/:prestacaoId', authenticateUser, uploadComprovante, prestacaoController.registraPagamento.bind(prestacaoController));
 router.put('/aluguel/aprovar/:prestacaoId', authenticateUser, isAdmin, prestacaoController.confirmaPagamento.bind(prestacaoController));

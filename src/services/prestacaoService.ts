@@ -483,6 +483,34 @@ class PrestacaoService {
             throw new Error('Erro marcar prestação como paga:  ' + error.message);
         }
     }
+
+    async getLinkComprovante(prestacaoId: string) {
+        try {
+            const prestacaoExisting = await prismaClient.prestacaoAluguel.findFirst({ where: { id: prestacaoId } });
+
+            if (!prestacaoExisting || !prestacaoExisting.linkComprovante) {
+                throw new Error('Prestação de aluguel nao encontrada no banco de dados.');
+            }
+
+            const token = getToken();
+
+            const response = await axios.get(prestacaoExisting.linkComprovante, {
+                responseType: "stream",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'User-Agent': 'MyBackend'
+                }
+            });
+
+            return {
+                stream: response.data,
+                contentType: response.headers["content-type"],
+                fileName: "comprovante." + prestacaoExisting.linkComprovante.split('.').pop()?.split('?')[0],
+            }
+        } catch (error) {
+            throw new Error('Erro buscar comprovante:  ' + error.message);
+        }
+    }
 }
 
 export default PrestacaoService;
