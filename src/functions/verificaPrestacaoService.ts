@@ -1,6 +1,6 @@
 import { StatusPagamento } from "@prisma/client";
 import { CronJob } from "cron";
-import { differenceInMonths } from "date-fns";
+import { differenceInMonths, startOfDay } from "date-fns";
 
 import prismaClient from "../prisma";
 
@@ -9,7 +9,7 @@ async function verificaPrestacoesEmAtraso() {
         const prestacoesEmAberto = await prismaClient.prestacaoAluguel.findMany({
             where: {
                 statusPagamento: StatusPagamento.PENDENTE,
-                dataVencimento: { lt: new Date() },
+                dataVencimento: { lt: startOfDay(new Date()) },
             }
         });
 
@@ -75,7 +75,7 @@ async function aplicarMulta() {
 
 async function notificaParcelas() {
     try {
-        
+
     } catch (error) {
         console.error('Erro ao notificar: ' + error.message);
     }
